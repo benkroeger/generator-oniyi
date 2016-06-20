@@ -1,0 +1,54 @@
+{
+  "name": "generator-oniyi",
+  "version": "1.0.0",
+  "description": "An opinionated generator for node.js modules. Making use of Babel, AVA, NYC",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benkroeger/generator-oniyi.git"
+  },
+  "keywords": [
+    "yeoman-generator",
+    "node",
+    "yeoman",
+    "generator",
+    "es6",
+    "babel",
+    "ava",
+    "nyc"
+  ],
+  "author": "Benjamin Kroeger <benjamin.kroeger@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/benkroeger/generator-oniyi/issues"
+  },
+  "homepage": "https://github.com/benkroeger/generator-oniyi#readme",
+  "files": [
+    "generators/app",
+    "generators/src",
+    "generators/test",
+    "generators/readme"
+  ],
+  "dependencies": {
+    "defined": "^1.0.0",
+    "deps-object": "^2.0.2",
+    "extend": "^3.0.0",
+    "generator-git-init": "^1.1.3",
+    "github-username": "^2.1.0",
+    "is-url": "^1.2.1",
+    "mkdirp": "^0.5.1",
+    "normalize-url": "^1.5.3",
+    "parse-author": "^1.0.0",
+    "relative": "^3.0.2",
+    "sorted-object": "^2.0.0",
+    "to-case": "^2.0.0",
+    "yeoman-generator": "^0.23.4"
+  },
+  "devDependencies": {
+    "eslint": "^2.13.0",
+    "eslint-config-oniyi": "^3.0.1"
+  }
+}
