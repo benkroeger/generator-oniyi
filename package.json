@@ -30,7 +30,8 @@
     "generators/app",
     "generators/src",
     "generators/test",
-    "generators/readme"
+    "generators/readme",
+    "generators/setup"
   ],
   "dependencies": {
     "defined": "^1.0.0",

@@ -259,6 +259,12 @@ module.exports = Base.extend({
       },
     }, { local: require.resolve('../test') });
 
+    this.composeWith('oniyi:setup', {
+      options: {
+        'skip-install': this.options['skip-install'],
+      },
+    }, { local: require.resolve('../setup') });
+
     if (!this.fs.exists(this.destinationPath('README.md'))) {
       this.composeWith('oniyi:readme', {
         options: {
