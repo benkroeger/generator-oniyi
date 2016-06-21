@@ -18,18 +18,21 @@ module.exports = Base.extend({
   writing: {
     pkgScripts: function srcPkgScripts() {
       const pkg = this.fs.readJSON(this.destinationPath('package.json'), {});
-      const scripts = pkg.scripts || {};
 
-      function setTask(name, task) {
-        scripts[name] = scripts[name] || task;
-      }
+      const npmScripts = [
+        // run eslint when calling `npm run lint`
+        { name: 'lint', cmd: 'eslint' },
 
-      setTask('lint', 'eslint');
-      // instead of runnning this on prepublish which doesn't work as expecte on
-      // npm@3 run it on preversion, this is because it's highly unlikely to do
-      // something after `npm version`
-      setTask('preversion', 'npm run lint');
-      pkg.scripts = scripts;
+        // instead of runnning this on prepublish which doesn't work as expecte on
+        // npm@3 run it on preversion, this is because it's highly unlikely to do
+        // something after `npm version`
+        { name: 'preversion', cmd: 'npm run lint' },
+      ];
+
+      pkg.scripts = npmScripts.reduce((result, script) => {
+        result[script.name] = script.cmd; // eslint-disable-line no-param-reassign
+        return result;
+      }, pkg.scripts || {});
 
       pkg.files = pkg.files || [];
 
@@ -43,13 +46,12 @@ module.exports = Base.extend({
     },
 
     pkgDevDeps: function srcPkgDevDeps() {
-      return this._saveDeps(['ava', // eslint-disable-line no-underscore-dangle
-        'babel-eslint',
+      return this._saveDeps([ // eslint-disable-line no-underscore-dangle
         'eslint',
         'eslint-config-oniyi',
-        'eslint-plugin-ava',
-      ]);
+      ], 'devDependencies');
     },
+
     pkgDeps: function srcPkgDeps() {
       return this._saveDeps(['oniyi-logger'], 'dependencies'); // eslint-disable-line no-underscore-dangle
     },

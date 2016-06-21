@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 // node core modules
 
@@ -7,5 +7,5 @@
 // internal modules
 
 module.exports = awesome => {
-  return `everything is <%= "${awesome}" %>`
+  return `everything is <%= "${awesome}" %>`;
 };

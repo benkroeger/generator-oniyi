@@ -52,8 +52,13 @@ module.exports = Base.extend({
       this.fs.writeJSON('package.json', pkg);
     },
 
-    pkgDeps: function testPkgDeps() {
-      return this._saveDeps(['ava', 'nyc']); // eslint-disable-line no-underscore-dangle
+    pkgDevDeps: function testPkgDevDeps() {
+      return this._saveDeps(['ava', // eslint-disable-line no-underscore-dangle
+        'babel-eslint',
+        'eslint',
+        'eslint-plugin-ava',
+        'nyc',
+      ]);
     },
 
     gitignore: function testGitignore() {
