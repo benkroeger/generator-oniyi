@@ -192,8 +192,6 @@ module.exports = Base.extend({
 
     addOns: function appAddOns() {
       const self = this;
-      // additional stuff
-      // - code coverage
       const prompts = [{
         type: 'confirm',
         name: 'coverage',
