@@ -131,19 +131,26 @@ module.exports = Base.extend({
     askForGithubAccount: function appAskForGithubAccount() {
       const self = this;
       const promise = new Promise((resolve, reject) => {
-        githubUsername(self.props.email, err => {
-          if (err) {
+        githubUsername(self.props.email, (err, username) => {
+          if (err && !/^Couldn't find a username for the supplied email$/i.test(err.message)) {
             return reject(err);
           }
 
-          self.prompt({
+          if (username) {
+            extend(self.props, {
+              githubUsername: username,
+            });
+            return resolve();
+          }
+
+          return self.prompt({
             name: 'githubUsername',
             message: 'Your github username:',
             when: self._shouldAskUserInfo('githubUsername'), // eslint-disable-line no-underscore-dangle
             store: true,
           }).then(answers => {
             extend(self.props, answers);
-            resolve(answers);
+            resolve();
           }, reject);
         });
       });
@@ -276,10 +283,3 @@ module.exports = Base.extend({
     }
   },
 });
-
-// "scripts": {
-//   "test": "ava"
-// },
-// "dependencies": {
-//   "oniyi-logger": "^0.4.2"
-// }
