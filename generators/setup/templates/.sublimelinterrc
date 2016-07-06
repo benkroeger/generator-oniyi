@@ -1,9 +1,9 @@
 {
-    "linters": {
-        "eslint": {
-            "excludes": [
-                "**/node_modules/**"
-            ]
-        }
+  "linters": {
+    "eslint": {
+      "excludes": [
+        "**/node_modules/**"
+      ]
     }
+  }
 }
