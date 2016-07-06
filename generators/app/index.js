@@ -54,7 +54,8 @@ module.exports = Base.extend({
       moduleName: toCase.slug(this.name || this.appname),
       moduleDescription: '',
       moduleKeywords: '',
-      moduleLicense: 'MIT',
+      moduleLicense: 'UNLICENSED',
+      modulePrivacy: true,
       coverage: true,
       // additional not configurable props
       src: 'lib/',
@@ -184,6 +185,12 @@ module.exports = Base.extend({
         message: 'License:',
         default: self.props.moduleLicense,
         when: !self.shouldSkipAll,
+      }, {
+        name: 'modulePrivacy',
+        type: 'confirm',
+        message: 'Is this a private module?',
+        default: self.props.modulePrivacy,
+        when: !self.shouldSkipAll,
       }];
       return self.prompt(prompts).then(answers => {
         extend(self.props, answers);
@@ -218,9 +225,10 @@ module.exports = Base.extend({
       const currentPkg = self.fs.readJSON(self.destinationPath('package.json'), {});
       const pkg = {
         name: self.props.moduleName,
-        version: '0.0.0',
+        version: '0.0.1',
         description: self.props.moduleDescription,
         license: self.props.moduleLicense,
+        private: self.props.modulePrivacy,
         author: {
           name: self.props.name,
           email: self.props.email,
@@ -230,6 +238,9 @@ module.exports = Base.extend({
         keywords: self.props.moduleKeywords,
         repository: `${self.props.githubUsername}/${this.props.moduleName}`,
         scripts: {},
+        engines: {
+          node: `>=${process.version}`,
+        },
       };
 
       // Let's extend package.json so we're not overwriting user previous fields
