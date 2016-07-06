@@ -57,6 +57,7 @@ module.exports = Base.extend({
     },
 
     templates: function srcTemplates() {
+      const self = this;
       const sourcePath = path.join(this.options.src, 'index.js');
 
       // copy template to this.options.src
@@ -65,7 +66,9 @@ module.exports = Base.extend({
         this.destinationPath(sourcePath), {}
       );
 
-      this.fs.copy(this.templatePath('.eslintrc'), this.destinationPath('.eslintrc'));
+      ['.eslintrc', '.npmrc'].forEach(fileName => {
+        self.fs.copy(self.templatePath(fileName), self.destinationPath(fileName));
+      });
     },
   },
 
