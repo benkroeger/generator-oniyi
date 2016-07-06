@@ -32,24 +32,34 @@ module.exports = Base.extend({
   },
 
   writing: {
-    pkg: function testPkg() {
+    pkgScripts: function testPkgScripts() {
       const pkg = this.fs.readJSON(this.destinationPath('package.json'), {});
-      const defaultCoverageCmd = 'nyc npm test && nyc report --reporter=text-lcov > coverage.lcov && codecov';
-      pkg.scripts = pkg.scripts || {};
 
-      // force the inclusion of these scripts
-      // this is because initially "test": "echo no tests"
-      pkg.scripts.test = 'ava';
-      pkg.scripts['test:watch'] = 'npm test -- --watch';
+      const npmScripts = [
+        // run ava when calling `npm test`
+        { name: 'test', cmd: 'ava' },
+
+        // also add "watch" mode to ava
+        { name: 'test:watch', cmd: 'npm test -- --watch' },
+
+        // instead of runnning this on prepublish which doesn't work as expecte on
+        // npm@3 run it on preversion, this is because it's highly unlikely to do
+        // something after `npm version`
+        { name: 'preversion', cmd: 'npm run lint && npm run coverage' },
+      ];
+
       if (this.options.coverage) {
-        // note that this will only be run on a CI server
-        pkg.scripts.coverage = pkg.scripts.coverage || defaultCoverageCmd;
+        npmScripts.push({ name: 'coverage', cmd: 'nyc npm test && nyc report --reporter=text-lcov > coverage.lcov' });
       }
 
-      // ava configuration
-      // pkg.ava = pkg.ava || {};
+      pkg.scripts = npmScripts.reduce((result, script) => {
+        if (!result[script.name]) {
+          result[script.name] = script.cmd; // eslint-disable-line no-param-reassign
+        }
+        return result;
+      }, pkg.scripts || {});
 
-      this.fs.writeJSON('package.json', pkg);
+      this.fs.writeJSON(this.destinationPath('package.json'), pkg);
     },
 
     pkgDevDeps: function testPkgDevDeps() {
