@@ -21,12 +21,7 @@ module.exports = Base.extend({
 
       const npmScripts = [
         // run eslint when calling `npm run lint`
-        { name: 'lint', cmd: 'eslint' },
-
-        // instead of runnning this on prepublish which doesn't work as expecte on
-        // npm@3 run it on preversion, this is because it's highly unlikely to do
-        // something after `npm version`
-        { name: 'preversion', cmd: 'npm run lint' },
+        { name: 'lint', cmd: 'eslint .' },
       ];
 
       pkg.scripts = npmScripts.reduce((result, script) => {
@@ -34,6 +29,11 @@ module.exports = Base.extend({
         return result;
       }, pkg.scripts || {});
 
+      this.fs.writeJSON(this.destinationPath('package.json'), pkg);
+    },
+
+    pkgFiles: function srcPkgFiles() {
+      const pkg = this.fs.readJSON(this.destinationPath('package.json'), {});
       pkg.files = pkg.files || [];
 
       const files = [this.options.src];
