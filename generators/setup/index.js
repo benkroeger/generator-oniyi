@@ -9,6 +9,7 @@ module.exports = Base.extend({
   writing: {
     templates: function srcTemplates() {
       this.fs.copy(this.templatePath('.sublimelinterrc'), this.destinationPath('.sublimelinterrc'));
+      this.fs.copy(this.templatePath('.jsbeautifyrc'), this.destinationPath('.jsbeautifyrc'));
     },
   },
 });
