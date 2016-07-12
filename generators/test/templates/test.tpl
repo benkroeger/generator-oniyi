@@ -1,7 +1,7 @@
 'use strict';
 
-import <%= camelName %> from '<%= indexPath %>';
 import test from 'ava';
+import <%= camelName %> from '<%= indexPath %>';
 
 test('awesome:test', t => {
   const message = 'everything is awesome';
