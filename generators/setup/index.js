@@ -2,14 +2,15 @@
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function srcContrsuctor() {
-    Base.apply(this, arguments);
+  constructor: function srcContrsuctor(...args) {
+    Base.apply(this, args);
   },
 
   writing: {
     templates: function srcTemplates() {
-      this.fs.copy(this.templatePath('.sublimelinterrc'), this.destinationPath('.sublimelinterrc'));
-      this.fs.copy(this.templatePath('.jsbeautifyrc'), this.destinationPath('.jsbeautifyrc'));
+      ['sublimelinterrc', 'jsbeautifyrc'].forEach(fileName => {
+        this.fs.copy(this.templatePath(fileName), this.destinationPath(`.${fileName}`));
+      });
     },
   },
 });

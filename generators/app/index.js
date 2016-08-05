@@ -10,8 +10,8 @@ const mkdirp = require('mkdirp');
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function appConstructor() {
-    Base.apply(this, arguments);
+  constructor: function appConstructor(...args) {
+    Base.apply(this, args);
 
     this.argument('name', {
       type: String,

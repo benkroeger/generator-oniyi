@@ -4,8 +4,8 @@ const path = require('path');
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function srcContrsuctor() {
-    Base.apply(this, arguments);
+  constructor: function srcContrsuctor(...args) {
+    Base.apply(this, args);
 
     this.option('src', {
       type: String,
