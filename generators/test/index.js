@@ -6,8 +6,8 @@ const relative = require('relative');
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function testConstructor() {
-    Base.apply(this, arguments);
+  constructor: function testConstructor(...args) {
+    Base.apply(this, args);
 
     this.option('src', {
       type: String,
@@ -41,15 +41,17 @@ module.exports = Base.extend({
 
         // also add "watch" mode to ava
         { name: 'test:watch', cmd: 'npm test -- --watch' },
-
-        // instead of runnning this on prepublish which doesn't work as expecte on
-        // npm@3 run it on preversion, this is because it's highly unlikely to do
-        // something after `npm version`
-        { name: 'preversion', cmd: 'npm run lint && npm run coverage' },
       ];
 
       if (this.options.coverage) {
         npmScripts.push({ name: 'coverage', cmd: 'nyc npm test && nyc report --reporter=text-lcov > coverage.lcov' });
+
+        // instead of runnning this on prepublish which doesn't work as expecte on
+        // npm@3 run it on preversion, this is because it's highly unlikely to do
+        // something after `npm version`
+        npmScripts.push({ name: 'preversion', cmd: 'npm run lint && npm run coverage' });
+      } else {
+        npmScripts.push({ name: 'preversion', cmd: 'npm run lint' });
       }
 
       pkg.scripts = npmScripts.reduce((result, script) => {
@@ -63,11 +65,11 @@ module.exports = Base.extend({
     },
 
     pkgDevDeps: function testPkgDevDeps() {
-      return this._saveDeps(['ava@0.15.2', // eslint-disable-line no-underscore-dangle
+      return this._saveDeps(['ava@0.16.0', // eslint-disable-line no-underscore-dangle
         'babel-eslint@6.1.2',
-        'eslint@3.0.1',
-        'eslint-plugin-ava@2.5.0',
-        'nyc@7.0.0',
+        'eslint@3.3.1',
+        'eslint-plugin-ava@3.0.0',
+        'nyc@8.1.0',
       ]);
     },
 

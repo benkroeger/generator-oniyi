@@ -47,8 +47,8 @@ module.exports = Base.extend({
 
     pkgDevDeps: function srcPkgDevDeps() {
       return this._saveDeps([ // eslint-disable-line no-underscore-dangle
-        'eslint@3.0.1',
-        'eslint-config-oniyi@4.0.0',
+        'eslint@3.3.1',
+        'eslint-config-oniyi@4.1.0',
       ], 'devDependencies');
     },
 
