@@ -6,6 +6,4 @@
 
 // internal modules
 
-module.exports = awesome => {
-  return `everything is <%= "${awesome}" %>`;
-};
+module.exports = awesome => `everything is <%= "${awesome}" %>`;
