@@ -2,7 +2,6 @@
 const defined = require('defined');
 const extend = require('extend');
 const toCase = require('to-case');
-const githubUsername = require('github-username');
 const normalizeUrl = require('normalize-url');
 const isUrl = require('is-url');
 const mkdirp = require('mkdirp');
@@ -118,6 +117,11 @@ module.exports = Base.extend({
         },
         required: false,
         store: true,
+      }, {
+        name: 'githubUsername',
+        message: 'Your github username:',
+        when: self._shouldAskUserInfo('githubUsername'), // eslint-disable-line no-underscore-dangle
+        store: true,
       }];
 
       return self.prompt(prompts)
@@ -127,36 +131,6 @@ module.exports = Base.extend({
             self.props.website = normalizeUrl(self.props.website);
           }
         });
-    },
-
-    askForGithubAccount: function appAskForGithubAccount() {
-      const self = this;
-      const promise = new Promise((resolve, reject) => {
-        githubUsername(self.props.email, (err, username) => {
-          if (err && !/^Couldn't find a username for the supplied email$/i.test(err.message)) {
-            return reject(err);
-          }
-
-          if (username) {
-            extend(self.props, {
-              githubUsername: username,
-            });
-            return resolve();
-          }
-
-          return self.prompt({
-            name: 'githubUsername',
-            message: 'Your github username:',
-            when: self._shouldAskUserInfo('githubUsername'), // eslint-disable-line no-underscore-dangle
-            store: true,
-          }).then(answers => {
-            extend(self.props, answers);
-            resolve();
-          }, reject);
-        });
-      });
-
-      return promise;
     },
 
     moduleInfo: function appModuleInfo() {
