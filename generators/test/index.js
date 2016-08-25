@@ -50,6 +50,16 @@ module.exports = Base.extend({
         // npm@3 run it on preversion, this is because it's highly unlikely to do
         // something after `npm version`
         npmScripts.push({ name: 'preversion', cmd: 'npm run lint && npm run coverage' });
+
+        const { nyc: pkgNyc = {} } = pkg;
+        if (!Array.isArray(pkgNyc.exclude) || pkgNyc.exclude.length < 1) {
+          pkgNyc.exclude = ['node_modules/**'];
+        } else if (pkgNyc.exclude.indexOf('node_modules/**') < 0) {
+          pkgNyc.exclude.push('node_modules/**');
+        }
+        Object.assign(pkg, {
+          nyc: pkgNyc,
+        });
       } else {
         npmScripts.push({ name: 'preversion', cmd: 'npm run lint' });
       }
