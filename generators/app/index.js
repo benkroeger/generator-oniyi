@@ -68,7 +68,7 @@ module.exports = Base.extend({
   },
 
   _checkEmpty: function checkEmpty(message) {
-    return v => {
+    return (v) => {
       if (!v.length) {
         return message;
       }
@@ -77,7 +77,7 @@ module.exports = Base.extend({
   },
 
   _checkUrl: function checkUrl(urlMessage) {
-    return v => {
+    return (v) => {
       if (v.length && !isUrl(normalizeUrl(v))) {
         return urlMessage;
       }
@@ -109,7 +109,7 @@ module.exports = Base.extend({
         message: 'Your website:',
         when: self._shouldAskUserInfo('website'), // eslint-disable-line no-underscore-dangle
         validate: self._checkUrl('The input is not a valid url'), // eslint-disable-line no-underscore-dangle
-        filter: v => {
+        filter: (v) => {
           if (v.indexOf('.') === -1) {
             return v;
           }
@@ -125,7 +125,7 @@ module.exports = Base.extend({
       }];
 
       return self.prompt(prompts)
-        .then(answers => {
+        .then((answers) => {
           extend(self.props, answers);
           if (self.props.website) {
             self.props.website = normalizeUrl(self.props.website);
@@ -166,9 +166,9 @@ module.exports = Base.extend({
         default: self.props.modulePrivacy,
         when: !self.shouldSkipAll,
       }];
-      return self.prompt(prompts).then(answers => {
-        extend(self.props, answers);
-      });
+      return self.prompt(prompts).then(answers =>
+        extend(self.props, answers)
+      );
     },
 
     addOns: function appAddOns() {
@@ -180,9 +180,9 @@ module.exports = Base.extend({
         when: !this.shouldSkipAll,
         default: this.props.coverage,
       }];
-      return self.prompt(prompts).then(answers => {
-        extend(self.props, answers);
-      });
+      return self.prompt(prompts).then(answers =>
+        extend(self.props, answers)
+      );
     },
   },
 

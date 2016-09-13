@@ -40,9 +40,9 @@ module.exports = Base.extend({
         when: !this.shouldSkipAll,
       }];
 
-      return this.prompt(prompts).then(answers => {
-        extend(self.props, answers);
-      });
+      return this.prompt(prompts).then(answers =>
+        extend(self.props, answers)
+      );
     },
   },
 

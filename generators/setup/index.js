@@ -8,9 +8,9 @@ module.exports = Base.extend({
 
   writing: {
     templates: function srcTemplates() {
-      ['sublimelinterrc', 'jsbeautifyrc'].forEach(fileName => {
-        this.fs.copy(this.templatePath(fileName), this.destinationPath(`.${fileName}`));
-      });
+      ['sublimelinterrc', 'jsbeautifyrc'].forEach(fileName =>
+        this.fs.copy(this.templatePath(fileName), this.destinationPath(`.${fileName}`))
+      );
     },
   },
 });

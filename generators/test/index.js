@@ -75,12 +75,18 @@ module.exports = Base.extend({
     },
 
     pkgDevDeps: function testPkgDevDeps() {
-      return this._saveDeps(['ava@0.16.0', // eslint-disable-line no-underscore-dangle
+      const devDeps = [
+        'ava@0.16.0',
         'babel-eslint@6.1.2',
-        'eslint@3.3.1',
+        'eslint@3.5.0',
         'eslint-plugin-ava@3.0.0',
-        'nyc@8.1.0',
-      ]);
+      ];
+
+      if (this.options.coverage) {
+        devDeps.push('nyc@8.1.0');
+      }
+
+      return this._saveDeps(devDeps); // eslint-disable-line no-underscore-dangle
     },
 
     gitignore: function testGitignore() {

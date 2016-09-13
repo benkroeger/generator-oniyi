@@ -37,7 +37,7 @@ module.exports = Base.extend({
       pkg.files = pkg.files || [];
 
       const files = [this.options.src];
-      files.forEach(file => {
+      files.forEach((file) => {
         if (pkg.files.indexOf(file) === -1) {
           pkg.files.push(file);
         }
@@ -47,8 +47,8 @@ module.exports = Base.extend({
 
     pkgDevDeps: function srcPkgDevDeps() {
       return this._saveDeps([ // eslint-disable-line no-underscore-dangle
-        'eslint@3.3.1',
-        'eslint-config-oniyi@4.1.0',
+        'eslint@3.5.0',
+        'eslint-config-oniyi@4.2.0',
       ], 'devDependencies');
     },
 
@@ -67,9 +67,9 @@ module.exports = Base.extend({
         this.destinationPath(sourcePath), {}
       );
 
-      ['eslintrc', 'npmrc'].forEach(fileName => {
-        self.fs.copy(self.templatePath(fileName), self.destinationPath(`.${fileName}`));
-      });
+      ['eslintrc', 'npmrc'].forEach(fileName =>
+        self.fs.copy(self.templatePath(fileName), self.destinationPath(`.${fileName}`))
+      );
     },
   },
 
