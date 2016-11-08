@@ -37,7 +37,7 @@ module.exports = Base.extend({
 
       const npmScripts = [
         // run ava when calling `npm test`
-        { name: 'test', cmd: 'ava' },
+        { name: 'test', cmd: 'ava --verbose' },
 
         // also add "watch" mode to ava
         { name: 'test:watch', cmd: 'npm test -- --watch' },
