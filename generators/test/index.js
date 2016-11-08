@@ -61,7 +61,7 @@ module.exports = Base.extend({
           nyc: pkgNyc,
         });
       } else {
-        npmScripts.push({ name: 'preversion', cmd: 'npm run lint' });
+        npmScripts.push({ name: 'preversion', cmd: 'npm run lint && npm run test' });
       }
 
       pkg.scripts = npmScripts.reduce((result, script) => {
