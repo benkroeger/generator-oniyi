@@ -54,7 +54,7 @@ module.exports = Base.extend({
 
 
     pkgDeps: function srcPkgDeps() {
-      return this._saveDeps(['oniyi-logger@0.4.2'], 'dependencies'); // eslint-disable-line no-underscore-dangle
+      return this._saveDeps(['oniyi-logger@1.0.0'], 'dependencies'); // eslint-disable-line no-underscore-dangle
     },
 
     templates: function srcTemplates() {
