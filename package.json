@@ -1,6 +1,6 @@
 {
   "name": "generator-oniyi",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "An opinionated generator for node.js modules. Making use of Babel, AVA, NYC",
   "main": "index.js",
   "scripts": {
