@@ -1,4 +1,5 @@
 'use strict';
+
 const toCase = require('to-case');
 const extend = require('extend');
 const parseAuthor = require('parse-author');
@@ -6,8 +7,8 @@ const parseAuthor = require('parse-author');
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function readmeConstructor() {
-    Base.apply(this, arguments);
+  constructor: function readmeConstructor(...args) {
+    Base.apply(this, args);
 
     this.option('codecov', {
       type: Boolean,
@@ -40,7 +41,7 @@ module.exports = Base.extend({
         when: !this.shouldSkipAll,
       }];
 
-      return this.prompt(prompts).then(answers => {
+      return this.prompt(prompts).then((answers) => {
         extend(self.props, answers);
       });
     },

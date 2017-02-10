@@ -1,11 +1,12 @@
 'use strict';
+
 const path = require('path');
 
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function srcContrsuctor() {
-    Base.apply(this, arguments);
+  constructor: function srcContrsuctor(...args) {
+    Base.apply(this, args);
 
     this.option('src', {
       type: String,
@@ -37,7 +38,7 @@ module.exports = Base.extend({
       pkg.files = pkg.files || [];
 
       const files = [this.options.src];
-      files.forEach(file => {
+      files.forEach((file) => {
         if (pkg.files.indexOf(file) === -1) {
           pkg.files.push(file);
         }

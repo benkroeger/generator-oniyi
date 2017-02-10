@@ -1,4 +1,5 @@
 'use strict';
+
 const path = require('path');
 const toCase = require('to-case');
 const relative = require('relative');
@@ -6,8 +7,8 @@ const relative = require('relative');
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function testConstructor() {
-    Base.apply(this, arguments);
+  constructor: function testConstructor(...args) {
+    Base.apply(this, args);
 
     this.option('src', {
       type: String,

@@ -20,18 +20,16 @@ module.exports = yeoman.Base.extend({
     const self = this;
     const targetProp = target || 'devDependencies';
     return depsObject(deps)
-      .then(devDependencies => {
+      .then((devDependencies) => {
         self._saveDepsToPkg(devDependencies, targetProp); // eslint-disable-line no-underscore-dangle
       })
-      .catch(err => {
-        throw err;
-      });
+      .catch((err) => { throw err; });
   },
 
   _gitignore: function gitignore(ignores) {
     const giPath = this.destinationPath('.gitignore');
     let file = this.fs.read(giPath, { defaults: '' });
-    ignores.forEach(v => {
+    ignores.forEach((v) => {
       if (file.indexOf(v) === -1) {
         file += `${v}\n`;
       }
