@@ -66,7 +66,7 @@ module.exports = Base.extend({
         this.destinationPath(sourcePath), {}
       );
 
-      ['.eslintrc', '.npmrc'].forEach(fileName => {
+      ['.eslintrc.js', '.npmrc'].forEach((fileName) => {
         self.fs.copy(self.templatePath(fileName), self.destinationPath(fileName));
       });
     },

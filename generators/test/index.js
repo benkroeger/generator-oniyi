@@ -95,9 +95,11 @@ module.exports = Base.extend({
           // computes the relative from `test` to `index`
           // e.g.   from test/ to src/index.js = ../src/index.js
           indexPath: relativePath,
-        }
+        });
+      this.fs.copy(
+        this.templatePath('.eslintrc.js'),
+        this.destinationPath(path.join(this.options.test, '.eslintrc.js'))
       );
-      this.fs.copy(this.templatePath('.eslintrc'), this.destinationPath(path.join(this.options.test, '.eslintrc')));
     },
   },
 
