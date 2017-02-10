@@ -47,13 +47,13 @@ module.exports = Base.extend({
 
     pkgDevDeps: function srcPkgDevDeps() {
       return this._saveDeps([ // eslint-disable-line no-underscore-dangle
-        'eslint',
-        'eslint-config-oniyi',
+        'eslint@3.15.0',
+        'eslint-config-oniyi@4.4.0',
       ], 'devDependencies');
     },
 
     pkgDeps: function srcPkgDeps() {
-      return this._saveDeps(['oniyi-logger'], 'dependencies'); // eslint-disable-line no-underscore-dangle
+      return this._saveDeps(['oniyi-logger@1.0.0'], 'dependencies'); // eslint-disable-line no-underscore-dangle
     },
 
     templates: function srcTemplates() {

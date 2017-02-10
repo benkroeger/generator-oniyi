@@ -63,11 +63,10 @@ module.exports = Base.extend({
     },
 
     pkgDevDeps: function testPkgDevDeps() {
-      return this._saveDeps(['ava', // eslint-disable-line no-underscore-dangle
-        'babel-eslint',
-        'eslint',
-        'eslint-plugin-ava',
-        'nyc',
+      return this._saveDeps(['ava@0.18.1', // eslint-disable-line no-underscore-dangle
+        'eslint@3.15.0',
+        'eslint-plugin-ava@4.1.0',
+        'nyc@10.1.2',
       ]);
     },
 
