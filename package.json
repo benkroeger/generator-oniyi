@@ -27,11 +27,7 @@
   },
   "homepage": "https://github.com/benkroeger/generator-oniyi#readme",
   "files": [
-    "generators/app",
-    "generators/src",
-    "generators/test",
-    "generators/readme",
-    "generators/setup"
+    "generators/"
   ],
   "dependencies": {
     "defined": "1.0.0",
