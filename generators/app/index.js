@@ -50,7 +50,7 @@ module.exports = Base.extend({
     this.savedAnswers = this._globalConfig.getAll().promptValues || {}; // eslint-disable-line no-underscore-dangle
     this.shouldSkipAll = this.options.yes;
     this.shouldAskAll = this.options.all;
-    const defaults = extend({}, this.savedAnswers, {
+    const defaults = Object.assign({}, this.savedAnswers, {
       moduleName: toCase.slug(this.name || this.appname),
       moduleDescription: '',
       moduleKeywords: '',
@@ -61,7 +61,7 @@ module.exports = Base.extend({
       src: 'lib/',
       test: 'test/',
     });
-    this.props = extend({}, defaults);
+    this.props = Object.assign({}, defaults);
     if (this.shouldSkipAll && this.shouldAskAll) {
       this.log('You have chosen to ask both "all" and "minimum" questions!\n');
     }
@@ -121,7 +121,7 @@ module.exports = Base.extend({
 
       return self.prompt(prompts)
         .then((answers) => {
-          extend(self.props, answers);
+          Object.assign(self.props, answers);
           if (self.props.website) {
             self.props.website = normalizeUrl(self.props.website);
           }
@@ -191,9 +191,9 @@ module.exports = Base.extend({
         default: self.props.modulePrivacy,
         when: !self.shouldSkipAll,
       }];
-      return self.prompt(prompts).then((answers) => {
-        extend(self.props, answers);
-      });
+      return self.prompt(prompts).then(answers =>
+        Object.assign(self.props, answers)
+      );
     },
 
     addOns() {
@@ -205,9 +205,9 @@ module.exports = Base.extend({
         when: !this.shouldSkipAll,
         default: this.props.coverage,
       }];
-      return self.prompt(prompts).then((answers) => {
-        extend(self.props, answers);
-      });
+      return self.prompt(prompts).then(answers =>
+        Object.assign(self.props, answers)
+      );
     },
   },
 
