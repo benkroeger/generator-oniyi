@@ -232,18 +232,17 @@ module.exports = Base.extend({
       const currentPkg = self.fs.readJSON(self.destinationPath('package.json'), {});
       const pkg = {
         name: self.props.moduleName,
-        version: '0.0.1',
+        version: '1.0.0',
         description: self.props.moduleDescription,
         license: self.props.moduleLicense,
         private: self.props.modulePrivacy,
-        author: {
-          name: self.props.name,
-          email: self.props.email,
-          url: this.props.website,
-        },
+        author: `${self.props.name} <${self.props.email}> (${this.props.website})`,
         main: `${self.props.src}index.js`,
         keywords: self.props.moduleKeywords,
-        repository: `${self.props.githubUsername}/${this.props.moduleName}`,
+        repository: {
+          type: 'git',
+          url: `git+https://github.com/${self.props.githubUsername}/${this.props.moduleName}.git`,
+        },
         scripts: {},
         engines: {
           node: `>=${process.version}`,
