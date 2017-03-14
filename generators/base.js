@@ -1,11 +1,11 @@
 'use strict';
 
-const yeoman = require('yeoman-generator');
+const Generator = require('yeoman-generator');
 const extend = require('extend');
 const sortedObject = require('sorted-object');
 const depsObject = require('deps-object');
 
-module.exports = yeoman.Base.extend({
+module.exports = Generator.extend({
   _saveDepsToPkg: function saveDepsToPkg(deps, target) {
     const pkg = this.fs.readJSON(this.destinationPath('package.json'), {});
     const targetProp = ['dependencies', 'devDependencies'].indexOf(target) > -1 ? target : 'devDependencies';

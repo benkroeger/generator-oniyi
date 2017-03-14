@@ -1,8 +1,8 @@
 'use strict';
+
 const defined = require('defined');
 const extend = require('extend');
 const toCase = require('to-case');
-const githubUsername = require('github-username');
 const normalizeUrl = require('normalize-url');
 const isUrl = require('is-url');
 const mkdirp = require('mkdirp');
@@ -10,8 +10,8 @@ const mkdirp = require('mkdirp');
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function appConstructor() {
-    Base.apply(this, arguments);
+  constructor: function appConstructor(...args) {
+    Base.apply(this, args);
 
     this.argument('name', {
       type: String,
@@ -46,11 +46,11 @@ module.exports = Base.extend({
     });
   },
 
-  initializing: function appInitializing() {
+  initializing() {
     this.savedAnswers = this._globalConfig.getAll().promptValues || {}; // eslint-disable-line no-underscore-dangle
     this.shouldSkipAll = this.options.yes;
     this.shouldAskAll = this.options.all;
-    const defaults = extend({}, this.savedAnswers, {
+    const defaults = Object.assign({}, this.savedAnswers, {
       moduleName: toCase.slug(this.name || this.appname),
       moduleDescription: '',
       moduleKeywords: '',
@@ -61,13 +61,37 @@ module.exports = Base.extend({
       src: 'lib/',
       test: 'test/',
     });
-    this.props = extend({}, defaults);
+    this.props = Object.assign({}, defaults);
     if (this.shouldSkipAll && this.shouldAskAll) {
       this.log('You have chosen to ask both "all" and "minimum" questions!\n');
     }
+
+    // git init
+    this.composeWith(require.resolve('generator-git-init'), {});
+
+    // src/index.js and test/index.js
+    this.composeWith(require.resolve('../src'), {
+      src: this.props.src,
+    });
+
+    this.composeWith(require.resolve('../test'), {
+      src: this.props.src,
+      test: this.props.test,
+      coverage: this.props.coverage,
+    });
+
+    this.composeWith(require.resolve('../setup'), {});
+
+    if (!this.fs.exists(this.destinationPath('README.md'))) {
+      this.composeWith(require.resolve('../readme'), {
+        githubUsername: this.props.githubUsername,
+        codecov: this.props.coverage,
+        yes: this.shouldSkipAll,
+      });
+    }
   },
 
-  _checkEmpty: function checkEmpty(message) {
+  _checkEmpty(message) {
     return (v) => {
       if (!v.length) {
         return message;
@@ -76,7 +100,7 @@ module.exports = Base.extend({
     };
   },
 
-  _checkUrl: function checkUrl(urlMessage) {
+  _checkUrl(urlMessage) {
     return (v) => {
       if (v.length && !isUrl(normalizeUrl(v))) {
         return urlMessage;
@@ -85,12 +109,12 @@ module.exports = Base.extend({
     };
   },
 
-  _shouldAskUserInfo: function shouldAskUserInfo(prop) {
+  _shouldAskUserInfo(prop) {
     return this.shouldAskAll || !defined(this.savedAnswers[prop]);
   },
 
   prompting: {
-    userInfo: function appUserInfo() {
+    userInfo() {
       const self = this;
       const prompts = [{
         name: 'name',
@@ -121,44 +145,29 @@ module.exports = Base.extend({
 
       return self.prompt(prompts)
         .then((answers) => {
-          extend(self.props, answers);
+          Object.assign(self.props, answers);
           if (self.props.website) {
             self.props.website = normalizeUrl(self.props.website);
           }
         });
     },
 
-    askForGithubAccount: function appAskForGithubAccount() {
+    askForGithubAccount() {
       const self = this;
-      const promise = new Promise((resolve, reject) => {
-        githubUsername(self.props.email, (err, username) => {
-          if (err && !/^Couldn't find a username for the supplied email$/i.test(err.message)) {
-            return reject(err);
-          }
-
-          if (username) {
-            extend(self.props, {
-              githubUsername: username,
-            });
-            return resolve();
-          }
-
-          return self.prompt({
+      // this uses self.user.git.email() as input for `github-username`, which might be different from
+      // `self.props.email`
+      return self.user.github.username()
+        .then(username => Object.assign(self.props, { githubUsername: username }),
+          () => self.prompt({
             name: 'githubUsername',
             message: 'Your github username:',
             when: self._shouldAskUserInfo('githubUsername'), // eslint-disable-line no-underscore-dangle
             store: true,
-          }).then((answers) => {
-            extend(self.props, answers);
-            resolve();
-          }, reject);
-        });
-      });
-
-      return promise;
+          }).then(answers => Object.assign(self.props, answers))
+        );
     },
 
-    moduleInfo: function appModuleInfo() {
+    moduleInfo() {
       const self = this;
       const prompts = [{
         name: 'moduleName',
@@ -191,12 +200,12 @@ module.exports = Base.extend({
         default: self.props.modulePrivacy,
         when: !self.shouldSkipAll,
       }];
-      return self.prompt(prompts).then((answers) => {
-        extend(self.props, answers);
-      });
+      return self.prompt(prompts).then(answers =>
+        Object.assign(self.props, answers)
+      );
     },
 
-    addOns: function appAddOns() {
+    addOns() {
       const self = this;
       const prompts = [{
         type: 'confirm',
@@ -205,14 +214,14 @@ module.exports = Base.extend({
         when: !this.shouldSkipAll,
         default: this.props.coverage,
       }];
-      return self.prompt(prompts).then((answers) => {
-        extend(self.props, answers);
-      });
+      return self.prompt(prompts).then(answers =>
+        Object.assign(self.props, answers)
+      );
     },
   },
 
   writing: {
-    pkg: function appPkg() {
+    pkg() {
       const self = this;
       if (self.name) {
         // if the argument `name` is given create the project inside it
@@ -224,18 +233,17 @@ module.exports = Base.extend({
       const currentPkg = self.fs.readJSON(self.destinationPath('package.json'), {});
       const pkg = {
         name: self.props.moduleName,
-        version: '0.0.1',
+        version: '1.0.0',
         description: self.props.moduleDescription,
         license: self.props.moduleLicense,
         private: self.props.modulePrivacy,
-        author: {
-          name: self.props.name,
-          email: self.props.email,
-          url: this.props.website,
-        },
+        author: `${self.props.name} <${self.props.email}> (${this.props.website})`,
         main: `${self.props.src}index.js`,
         keywords: self.props.moduleKeywords,
-        repository: `${self.props.githubUsername}/${this.props.moduleName}`,
+        repository: {
+          type: 'git',
+          url: `git+https://github.com/${self.props.githubUsername}/${this.props.moduleName}.git`,
+        },
         scripts: {},
         engines: {
           node: `>=${process.version}`,
@@ -246,48 +254,8 @@ module.exports = Base.extend({
       self.fs.writeJSON('package.json', extend(true, pkg, currentPkg));
     },
 
-    gitignore: function appGitignore() {
+    gitignore() {
       this._gitignore(['.DS_Store', 'node_modules']); // eslint-disable-line no-underscore-dangle
     },
-  },
-
-  default: function appDefault() {
-    // git init
-    this.composeWith('git-init', {}, {
-      local: require.resolve('generator-git-init'),
-    });
-
-    // src/index.js and test/index.js
-    this.composeWith('oniyi:src', {
-      options: {
-        src: this.props.src,
-        'skip-install': this.options['skip-install'],
-      },
-    }, { local: require.resolve('../src') });
-
-    this.composeWith('oniyi:test', {
-      options: {
-        'skip-install': this.options['skip-install'],
-        src: this.props.src,
-        test: this.props.test,
-        coverage: this.props.coverage,
-      },
-    }, { local: require.resolve('../test') });
-
-    this.composeWith('oniyi:setup', {
-      options: {
-        'skip-install': this.options['skip-install'],
-      },
-    }, { local: require.resolve('../setup') });
-
-    if (!this.fs.exists(this.destinationPath('README.md'))) {
-      this.composeWith('oniyi:readme', {
-        options: {
-          githubUsername: this.props.githubUsername,
-          codecov: this.props.coverage,
-          yes: this.shouldSkipAll,
-        },
-      }, { local: require.resolve('../readme') });
-    }
   },
 });
