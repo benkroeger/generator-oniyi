@@ -9,7 +9,7 @@ module.exports = Base.extend({
 
   writing: {
     templates: function srcTemplates() {
-      this.fs.copy(this.templatePath('.jsbeautifyrc'), this.destinationPath('.jsbeautifyrc'));
+      this.fs.copy(this.templatePath('jsbeautifyrc'), this.destinationPath('.jsbeautifyrc'));
     },
   },
 });

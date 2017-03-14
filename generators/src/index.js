@@ -48,7 +48,7 @@ module.exports = Base.extend({
 
     pkgDevDeps: function srcPkgDevDeps() {
       return this._saveDeps([ // eslint-disable-line no-underscore-dangle
-        'eslint@3.15.0',
+        'eslint@3.17.1',
         'eslint-config-oniyi@4.4.0',
       ], 'devDependencies');
     },
@@ -67,8 +67,8 @@ module.exports = Base.extend({
         this.destinationPath(sourcePath), {}
       );
 
-      ['.eslintrc.js', '.npmrc'].forEach((fileName) => {
-        self.fs.copy(self.templatePath(fileName), self.destinationPath(fileName));
+      ['eslintrc.js', 'npmrc'].forEach((fileName) => {
+        self.fs.copy(self.templatePath(fileName), self.destinationPath(`.${fileName}`));
       });
     },
   },

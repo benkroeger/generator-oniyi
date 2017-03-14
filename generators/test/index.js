@@ -64,9 +64,9 @@ module.exports = Base.extend({
     },
 
     pkgDevDeps: function testPkgDevDeps() {
-      return this._saveDeps(['ava@0.18.1', // eslint-disable-line no-underscore-dangle
-        'eslint@3.15.0',
-        'eslint-plugin-ava@4.1.0',
+      return this._saveDeps(['ava@0.18.2', // eslint-disable-line no-underscore-dangle
+        'eslint@3.17.1',
+        'eslint-plugin-ava@4.2.0',
         'nyc@10.1.2',
       ]);
     },
@@ -97,7 +97,7 @@ module.exports = Base.extend({
           indexPath: relativePath,
         });
       this.fs.copy(
-        this.templatePath('.eslintrc.js'),
+        this.templatePath('eslintrc.js'),
         this.destinationPath(path.join(this.options.test, '.eslintrc.js'))
       );
     },
