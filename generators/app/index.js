@@ -1,4 +1,5 @@
 'use strict';
+
 const defined = require('defined');
 const extend = require('extend');
 const toCase = require('to-case');
