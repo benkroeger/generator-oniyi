@@ -2,7 +2,6 @@
 const defined = require('defined');
 const extend = require('extend');
 const toCase = require('to-case');
-const githubUsername = require('github-username');
 const normalizeUrl = require('normalize-url');
 const isUrl = require('is-url');
 const mkdirp = require('mkdirp');
@@ -154,32 +153,17 @@ module.exports = Base.extend({
 
     askForGithubAccount() {
       const self = this;
-      const promise = new Promise((resolve, reject) => {
-        githubUsername(self.props.email, (err, username) => {
-          if (err && !/^Couldn't find a username for the supplied email$/i.test(err.message)) {
-            return reject(err);
-          }
-
-          if (username) {
-            extend(self.props, {
-              githubUsername: username,
-            });
-            return resolve();
-          }
-
-          return self.prompt({
+      // this uses self.user.git.email() as input for `github-username`, which might be different from
+      // `self.props.email`
+      return self.user.github.username()
+        .then(username => Object.assign(self.props, { githubUsername: username }),
+          () => self.prompt({
             name: 'githubUsername',
             message: 'Your github username:',
             when: self._shouldAskUserInfo('githubUsername'), // eslint-disable-line no-underscore-dangle
             store: true,
-          }).then((answers) => {
-            extend(self.props, answers);
-            resolve();
-          }, reject);
-        });
-      });
-
-      return promise;
+          }).then(answers => Object.assign(self.props, answers))
+        );
     },
 
     moduleInfo() {
