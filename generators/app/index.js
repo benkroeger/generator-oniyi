@@ -10,8 +10,8 @@ const mkdirp = require('mkdirp');
 const Base = require('../base');
 
 module.exports = Base.extend({
-  constructor: function appConstructor() {
-    Base.apply(this, arguments);
+  constructor: function appConstructor(...args) {
+    Base.apply(this, args);
 
     this.argument('name', {
       type: String,
@@ -46,7 +46,7 @@ module.exports = Base.extend({
     });
   },
 
-  initializing: function appInitializing() {
+  initializing() {
     this.savedAnswers = this._globalConfig.getAll().promptValues || {}; // eslint-disable-line no-underscore-dangle
     this.shouldSkipAll = this.options.yes;
     this.shouldAskAll = this.options.all;
@@ -67,7 +67,7 @@ module.exports = Base.extend({
     }
   },
 
-  _checkEmpty: function checkEmpty(message) {
+  _checkEmpty(message) {
     return (v) => {
       if (!v.length) {
         return message;
@@ -76,7 +76,7 @@ module.exports = Base.extend({
     };
   },
 
-  _checkUrl: function checkUrl(urlMessage) {
+  _checkUrl(urlMessage) {
     return (v) => {
       if (v.length && !isUrl(normalizeUrl(v))) {
         return urlMessage;
@@ -85,12 +85,12 @@ module.exports = Base.extend({
     };
   },
 
-  _shouldAskUserInfo: function shouldAskUserInfo(prop) {
+  _shouldAskUserInfo(prop) {
     return this.shouldAskAll || !defined(this.savedAnswers[prop]);
   },
 
   prompting: {
-    userInfo: function appUserInfo() {
+    userInfo() {
       const self = this;
       const prompts = [{
         name: 'name',
@@ -128,7 +128,7 @@ module.exports = Base.extend({
         });
     },
 
-    askForGithubAccount: function appAskForGithubAccount() {
+    askForGithubAccount() {
       const self = this;
       const promise = new Promise((resolve, reject) => {
         githubUsername(self.props.email, (err, username) => {
@@ -158,7 +158,7 @@ module.exports = Base.extend({
       return promise;
     },
 
-    moduleInfo: function appModuleInfo() {
+    moduleInfo() {
       const self = this;
       const prompts = [{
         name: 'moduleName',
@@ -196,7 +196,7 @@ module.exports = Base.extend({
       });
     },
 
-    addOns: function appAddOns() {
+    addOns() {
       const self = this;
       const prompts = [{
         type: 'confirm',
@@ -212,7 +212,7 @@ module.exports = Base.extend({
   },
 
   writing: {
-    pkg: function appPkg() {
+    pkg() {
       const self = this;
       if (self.name) {
         // if the argument `name` is given create the project inside it
@@ -246,7 +246,7 @@ module.exports = Base.extend({
       self.fs.writeJSON('package.json', extend(true, pkg, currentPkg));
     },
 
-    gitignore: function appGitignore() {
+    gitignore() {
       this._gitignore(['.DS_Store', 'node_modules']); // eslint-disable-line no-underscore-dangle
     },
   },
