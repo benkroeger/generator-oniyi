@@ -65,6 +65,30 @@ module.exports = Base.extend({
     if (this.shouldSkipAll && this.shouldAskAll) {
       this.log('You have chosen to ask both "all" and "minimum" questions!\n');
     }
+
+    // git init
+    this.composeWith(require.resolve('generator-git-init'), {});
+
+    // src/index.js and test/index.js
+    this.composeWith(require.resolve('../src'), {
+      src: this.props.src,
+    });
+
+    this.composeWith(require.resolve('../test'), {
+      src: this.props.src,
+      test: this.props.test,
+      coverage: this.props.coverage,
+    });
+
+    this.composeWith(require.resolve('../setup'), {});
+
+    if (!this.fs.exists(this.destinationPath('README.md'))) {
+      this.composeWith(require.resolve('../readme'), {
+        githubUsername: this.props.githubUsername,
+        codecov: this.props.coverage,
+        yes: this.shouldSkipAll,
+      });
+    }
   },
 
   _checkEmpty(message) {
@@ -249,45 +273,5 @@ module.exports = Base.extend({
     gitignore() {
       this._gitignore(['.DS_Store', 'node_modules']); // eslint-disable-line no-underscore-dangle
     },
-  },
-
-  default: function appDefault() {
-    // git init
-    this.composeWith('git-init', {}, {
-      local: require.resolve('generator-git-init'),
-    });
-
-    // src/index.js and test/index.js
-    this.composeWith('oniyi:src', {
-      options: {
-        src: this.props.src,
-        'skip-install': this.options['skip-install'],
-      },
-    }, { local: require.resolve('../src') });
-
-    this.composeWith('oniyi:test', {
-      options: {
-        'skip-install': this.options['skip-install'],
-        src: this.props.src,
-        test: this.props.test,
-        coverage: this.props.coverage,
-      },
-    }, { local: require.resolve('../test') });
-
-    this.composeWith('oniyi:setup', {
-      options: {
-        'skip-install': this.options['skip-install'],
-      },
-    }, { local: require.resolve('../setup') });
-
-    if (!this.fs.exists(this.destinationPath('README.md'))) {
-      this.composeWith('oniyi:readme', {
-        options: {
-          githubUsername: this.props.githubUsername,
-          codecov: this.props.coverage,
-          yes: this.shouldSkipAll,
-        },
-      }, { local: require.resolve('../readme') });
-    }
   },
 });
