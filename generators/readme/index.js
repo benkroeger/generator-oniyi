@@ -58,22 +58,17 @@ module.exports = Base.extend({
       authorInfo = {};
     }
 
-    // get githubUsername from repository field
-    // assume for simplicity that the field has the form
-    //
-    //    githubUsername/moduleName
-    //
-    const githubUsername = (pkg.repository || '').split('/')[0];
 
-    extend(this.props, {
-      githubUsername,
-      name: authorInfo.name || '',
+    Object.assign(this.props, {
       email: authorInfo.email || '',
-      website: authorInfo.url || '',
-      moduleName: (pkg.name || this.appname),
+      githubUsername: this.options.githubUsername,
       moduleDescription: pkg.description || '',
       moduleLicense: pkg.license || '',
+      moduleName: (pkg.name || this.appname),
+      name: authorInfo.name || '',
+      website: authorInfo.url || '',
     });
+
     this.props.camelModuleName = toCase.camel(this.props.moduleName);
     this.fs.copyTpl(
       this.templatePath('README.tpl'),
