@@ -1,30 +1,42 @@
 'use strict';
 
-const defined = require('defined');
-const extend = require('extend');
 const toCase = require('to-case');
-const normalizeUrl = require('normalize-url');
 const isUrl = require('is-url');
+const normalizeUrl = require('normalize-url');
 const mkdirp = require('mkdirp');
 
-const Base = require('../base');
+const BaseWithHelpers = require('../base-with-helpers');
 
-module.exports = Base.extend({
-  constructor: function appConstructor(...args) {
-    Base.apply(this, args);
+const checkEmpty = (message) => (v) => {
+    if (!v.length) {
+      return message;
+    }
+    return true;
+  };
+
+const checkUrl = (urlMessage) => (v) => {
+    if (v.length && !isUrl(normalizeUrl(v))) {
+      return urlMessage;
+    }
+    return true;
+  };
+
+module.exports = class extends BaseWithHelpers {
+  constructor (args, opts) {
+    super(args, opts);
 
     this.argument('name', {
       type: String,
       required: false,
       desc: [
         'module name',
-        'If provided the module will be created inside ./myAwesomeModule/',
+        'If provided the module will be created inside ./my-module/',
         'otherwise it will be created in the current directory',
         '',
         'Examples:',
         '',
         '   $ yo oniyi',
-        '   $ yo oniyi myAwesomeModule',
+        '   $ yo oniyi my-module',
         '',
       ].join('\n  '),
     });
@@ -44,32 +56,34 @@ module.exports = Base.extend({
       default: false,
       desc: 'Skip some questions, like $ npm init -y',
     });
-  },
+  }
 
-  initializing() {
-    this.savedAnswers = this._globalConfig.getAll().promptValues || {}; // eslint-disable-line no-underscore-dangle
+  async initializing() {
+    this.savedAnswers = this.config.getAll().promptValues || {};
     this.shouldSkipAll = this.options.yes;
     this.shouldAskAll = this.options.all;
-    const defaults = Object.assign({}, this.savedAnswers, {
+
+    const defaults = Object.assign({ githubUsername }, this.savedAnswers, {
       moduleName: toCase.slug(this.name || this.appname),
       moduleDescription: '',
       moduleKeywords: '',
       moduleLicense: 'UNLICENSED',
       modulePrivacy: true,
       coverage: true,
+
       // additional not configurable props
       src: 'lib/',
       test: 'test/',
     });
+
     this.props = Object.assign({}, defaults);
+
     if (this.shouldSkipAll && this.shouldAskAll) {
       this.log('You have chosen to ask both "all" and "minimum" questions!\n');
     }
 
-    // git init
     this.composeWith(require.resolve('generator-git-init'), {});
 
-    // src/index.js and test/index.js
     this.composeWith(require.resolve('../src'), {
       src: this.props.src,
     });
@@ -89,82 +103,59 @@ module.exports = Base.extend({
         yes: this.shouldSkipAll,
       });
     }
-  },
+  }
 
-  _checkEmpty(message) {
-    return (v) => {
-      if (!v.length) {
-        return message;
-      }
-      return true;
-    };
-  },
+  async prompting () {
+    const self = this;
 
-  _checkUrl(urlMessage) {
-    return (v) => {
-      if (v.length && !isUrl(normalizeUrl(v))) {
-        return urlMessage;
-      }
-      return true;
-    };
-  },
-
-  _shouldAskUserInfo(prop) {
-    return this.shouldAskAll || !defined(this.savedAnswers[prop]);
-  },
-
-  prompting: {
-    userInfo() {
-      const self = this;
-      const prompts = [{
-        name: 'name',
-        message: 'Your name:',
-        when: self._shouldAskUserInfo('name'), // eslint-disable-line no-underscore-dangle
-        validate: self._checkEmpty('Your name is required'), // eslint-disable-line no-underscore-dangle
-        store: true,
-      }, {
-        name: 'email',
-        message: 'Your email:',
-        when: self._shouldAskUserInfo('email'), // eslint-disable-line no-underscore-dangle
-        validate: self._checkEmpty('Your email is required'), // eslint-disable-line no-underscore-dangle
-        store: true,
-      }, {
-        name: 'website',
-        message: 'Your website:',
-        when: self._shouldAskUserInfo('website'), // eslint-disable-line no-underscore-dangle
-        validate: self._checkUrl('The input is not a valid url'), // eslint-disable-line no-underscore-dangle
-        filter: (v) => {
-          if (v.indexOf('.') === -1) {
-            return v;
-          }
-          return normalizeUrl(v);
-        },
-        required: false,
-        store: true,
-      }];
-
-      return self.prompt(prompts)
-        .then((answers) => {
-          Object.assign(self.props, answers);
-          if (self.props.website) {
-            self.props.website = normalizeUrl(self.props.website);
-          }
-        });
+    const prompts = [
+      // user info
+    {
+      name: 'name',
+      message: 'Your name:',
+      when: self.shouldAskUserInfo('name'),
+      validate: checkEmpty('Your name is required'),
+      store: true,
+    }, {
+      name: 'email',
+      message: 'Your email:',
+      when: self.shouldAskUserInfo('email'),
+      validate: checkEmpty('Your email is required'),
+      store: true,
+    }, {
+      name: 'website',
+      message: 'Your website:',
+      when: self.shouldAskUserInfo('website'),
+      validate: checkUrl('The input is not a valid url'),
+      filter: (v) => {
+        if (v.indexOf('.') === -1) {
+          return v;
+        }
+        return normalizeUrl(v);
+      },
+      required: false,
+      store: true,
     },
 
-    askForGithubAccount() {
-      const self = this;
-      // this uses self.user.git.email() as input for `github-username`, which might be different from
-      // `self.props.email`
-      return self.user.github.username()
-        .then(username => Object.assign(self.props, { githubUsername: username }),
-          () => self.prompt({
-            name: 'githubUsername',
-            message: 'Your github username:',
-            when: self._shouldAskUserInfo('githubUsername'), // eslint-disable-line no-underscore-dangle
-            store: true,
-          }).then(answers => Object.assign(self.props, answers))
-        );
+    // github account info
+    {
+      name: 'githubUsername',
+      message: 'Your github username:',
+      when: self.shouldAskUserInfo('githubUsername'),
+      store: true,
+    },
+  ];
+
+    this.answers = await this.prompt(prompts)
+      .then(answers => {
+        if (answers.website) {
+          return Object.assign({}, answers, { website: normalizeUlr(answers.website)});
+        }
+        return answers;
+      });
+    }
+
+
     },
 
     moduleInfo() {
@@ -173,13 +164,13 @@ module.exports = Base.extend({
         name: 'moduleName',
         message: 'Module name:',
         default: self.props.moduleName,
-        validate: self._checkEmpty('Module name is required'), // eslint-disable-line no-underscore-dangle
+        validate: checkEmpty('Module name is required'),
         when: !self.shouldSkipAll,
         filter: v => toCase.slug(v || ''),
       }, {
         name: 'moduleDescription',
         message: 'Module description:',
-        validate: self._checkEmpty('Module description is required'), // eslint-disable-line no-underscore-dangle
+        validate: checkEmpty('Module description is required'),
         when: !self.shouldSkipAll,
       }, {
         name: 'moduleKeywords',
@@ -251,11 +242,11 @@ module.exports = Base.extend({
       };
 
       // Let's extend package.json so we're not overwriting user previous fields
-      self.fs.writeJSON('package.json', extend(true, pkg, currentPkg));
+      self.fs.extendJSON(self.destinationPath('package.json'), pkg);
     },
 
     gitignore() {
-      this._gitignore(['.DS_Store', 'node_modules']); // eslint-disable-line no-underscore-dangle
+      this._gitignore(['.DS_Store', 'node_modules']);
     },
   },
-});
+};

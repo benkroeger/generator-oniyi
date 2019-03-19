@@ -1,10 +1,15 @@
 {
   "name": "generator-oniyi",
   "version": "2.0.1",
-  "description": "An opinionated generator for node.js modules. Making use of Babel, AVA, NYC",
+  "description": "An opinionated generator for node.js modules. Making use of ESLint, Prettier, AVA, NYC",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "coverage": "nyc npm test && nyc report --reporter=html",
+    "format": "prettier --write \"**/*.{js,json}\"",
+    "lint": "eslint .",
+    "start:dev": "ROARR_LOG=true node lib/index.js | roarr pretty-print",
+    "test": "ava --verbose",
+    "test:watch": "npm test -- --watch"
   },
   "repository": {
     "type": "git",
@@ -12,16 +17,16 @@
   },
   "keywords": [
     "yeoman-generator",
-    "node",
     "yeoman",
     "generator",
-    "es6",
-    "babel",
+    "node",
+    "eslint",
+    "prettier",
     "ava",
     "nyc"
   ],
   "author": "Benjamin Kroeger <benjamin.kroeger@gmail.com>",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/benkroeger/generator-oniyi/issues"
   },
@@ -30,23 +35,40 @@
     "generators/"
   ],
   "dependencies": {
+    "@roarr/middleware-serialize-error": "1.0.0",
     "defined": "1.0.0",
     "deps-object": "2.0.2",
-    "extend": "3.0.2",
     "generator-git-init": "1.1.3",
     "is-url": "1.2.4",
     "mkdirp": "0.5.1",
-    "normalize-url": "1.9.1",
+    "normalize-url": "4.2.0",
     "parse-author": "2.0.0",
     "relative": "3.0.2",
     "sorted-object": "2.0.1",
     "to-case": "2.0.0",
-    "yeoman-generator": "1.1.1"
+    "yeoman-generator": "3.2.0"
   },
   "devDependencies": {
-    "ava": "0.18.2",
-    "eslint": "3.17.1",
-    "eslint-config-oniyi": "4.4.0",
-    "eslint-plugin-ava": "4.2.0"
+    "@roarr/cli": "1.3.1",
+    "ava": "1.3.1",
+    "eslint": "5.15.2",
+    "eslint-config-airbnb-base": "13.1.0",
+    "eslint-config-prettier": "4.1.0",
+    "eslint-plugin-import": "2.16.0",
+    "eslint-plugin-prettier": "3.0.1",
+    "nyc": "13.3.0",
+    "prettier": "1.16.4"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "nyc": {
+    "include": [
+      "index.js",
+      "generators/**.js"
+    ],
+    "exclude": [
+      "**/*.test.js"
+    ]
   }
 }

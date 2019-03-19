@@ -1,7 +1,10 @@
-module.exports = {
-  app: require.resolve('./generators/app'),
-  src: require.resolve('./generators/src'),
-  test: require.resolve('./generators/test'),
-  readme: require.resolve('./generators/readme'),
-  setup: require.resolve('./generators/setup'),
-};
+'use strict';
+
+// node core
+
+// 3rd party
+
+// internal
+
+module.exports = 'app src test readme setup'.split(' ').reduce((result, generator) =>
+  Object.assign(result, { [generator]: require.resolve(`./generators/${generator}`) }), {});

@@ -38,7 +38,7 @@ module.exports = Base.extend({
       pkg.files = pkg.files || [];
 
       const files = [this.options.src];
-      files.forEach((file) => {
+      files.forEach(file => {
         if (pkg.files.indexOf(file) === -1) {
           pkg.files.push(file);
         }
@@ -47,10 +47,23 @@ module.exports = Base.extend({
     },
 
     pkgDevDeps: function srcPkgDevDeps() {
-      return this._saveDeps([ // eslint-disable-line no-underscore-dangle
-        'eslint@3.17.1',
-        'eslint-config-oniyi@4.4.0',
-      ], 'devDependencies');
+      // eslint-disable-next-line no-underscore-dangle
+      return this._saveDeps(
+        [
+          'eslint@3.17.1',
+          'eslint-config-oniyi@4.4.0',
+          // "@roarr/cli": "1.3.1",
+          // "ava": "1.3.1",
+          // "eslint": "5.15.2",
+          // "eslint-config-airbnb-base": "13.1.0",
+          // "eslint-config-prettier": "4.1.0",
+          // "eslint-plugin-import": "2.16.0",
+          // "eslint-plugin-prettier": "3.0.1",
+          // "nyc": "13.3.0",
+          // "prettier": "1.16.4"
+        ],
+        'devDependencies',
+      );
     },
 
     pkgDeps: function srcPkgDeps() {
@@ -64,11 +77,15 @@ module.exports = Base.extend({
       // copy template to this.options.src
       this.fs.copyTpl(
         this.templatePath('index.tpl'),
-        this.destinationPath(sourcePath), {}
+        this.destinationPath(sourcePath),
+        {},
       );
 
-      ['eslintrc.js', 'npmrc'].forEach((fileName) => {
-        self.fs.copy(self.templatePath(fileName), self.destinationPath(`.${fileName}`));
+      ['eslintrc.js', 'npmrc'].forEach(fileName => {
+        self.fs.copy(
+          self.templatePath(fileName),
+          self.destinationPath(`.${fileName}`),
+        );
       });
     },
   },
