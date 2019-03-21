@@ -6,5 +6,10 @@
 
 // internal
 
-module.exports = 'app src test readme setup'.split(' ').reduce((result, generator) =>
-  Object.assign(result, { [generator]: require.resolve(`./generators/${generator}`) }), {});
+module.exports = 'app boilerplate test eslint git readme'.split(' ').reduce(
+  (result, generator) =>
+    Object.assign(result, {
+      [generator]: require.resolve(`./generators/${generator}`),
+    }),
+  {},
+);

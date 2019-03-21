@@ -1,3 +1,5 @@
+'use strict';
+
 // node core
 
 // third-party
@@ -11,9 +13,13 @@ module.exports = {
       jsx: false,
     },
   },
+  env: {
+    jest: true,
+    node: true,
+  },
   plugins: ['prettier'],
   extends: ['airbnb-base', 'prettier'],
   rules: {
-    'prettier/prettier': 'warn',
+    'prettier/prettier': 'error',
   },
 };

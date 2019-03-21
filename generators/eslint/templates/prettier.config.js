@@ -1,8 +1,10 @@
-// node core modules
+'use strict';
 
-// third-party modules
+// node core
 
-// internal modules
+// third-party
+
+// internal
 
 module.exports = {
   trailingComma: 'all',

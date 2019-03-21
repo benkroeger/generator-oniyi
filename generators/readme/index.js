@@ -1,79 +1,97 @@
 'use strict';
 
-const toCase = require('to-case');
-const extend = require('extend');
-const parseAuthor = require('parse-author');
+// node core
+const querystring = require('querystring');
 
-const Base = require('../base');
+// 3rd party
+const _ = require('lodash');
+const Generator = require('yeoman-generator');
 
-module.exports = Base.extend({
-  constructor: function readmeConstructor(...args) {
-    Base.apply(this, args);
+// internal
 
-    this.option('codecov', {
-      type: Boolean,
+module.exports = class extends Generator {
+  constructor(args, options) {
+    super(args, options);
+
+    this.option('generateInto', {
+      type: String,
       required: false,
-      default: false,
-      desc: 'Include the codecov badge',
-    });
-  },
-
-  initializing: function readmeInitializing() {
-    this.shouldSkipAll = this.options.yes;
-    this.props = {
-      badges: ['npm', this.options.codecov && 'codecov'].filter(Boolean),
-    };
-  },
-
-  prompting: {
-    badges: function readmeBadges() {
-      const self = this;
-      const prompts = [{
-        type: 'checkbox',
-        name: 'badges',
-        message: 'Select the badges that you want in your README',
-        choices: [
-          { name: 'npm' },
-          { name: 'codecov' },
-          { name: 'downloads' },
-        ],
-        default: this.props.badges,
-        when: !this.shouldSkipAll,
-      }];
-
-      return this.prompt(prompts).then((answers) => {
-        extend(self.props, answers);
-      });
-    },
-  },
-
-  writing: function readmeWriting() {
-    const pkg = this.fs.readJSON(this.destinationPath('package.json'), {});
-    let authorInfo;
-    if (pkg.author && typeof pkg.author === 'object') {
-      authorInfo = pkg.author;
-    } else if (typeof pkg.author === 'string') {
-      authorInfo = parseAuthor(pkg.author);
-    } else {
-      authorInfo = {};
-    }
-
-
-    Object.assign(this.props, {
-      email: authorInfo.email || '',
-      githubUsername: this.options.githubUsername,
-      moduleDescription: pkg.description || '',
-      moduleLicense: pkg.license || '',
-      moduleName: (pkg.name || this.appname),
-      name: authorInfo.name || '',
-      website: authorInfo.url || '',
+      defaults: '',
+      desc: 'Relocate the location of the generated files.',
     });
 
-    this.props.camelModuleName = toCase.camel(this.props.moduleName);
-    this.fs.copyTpl(
-      this.templatePath('README.tpl'),
-      this.destinationPath('README.md'),
-      this.props
+    this.option('name', {
+      type: String,
+      required: true,
+      desc: 'Project name',
+    });
+
+    this.option('description', {
+      type: String,
+      required: true,
+      desc: 'Project description',
+    });
+
+    this.option('githubAccount', {
+      type: String,
+      required: true,
+      desc: 'GitHub username or organization',
+    });
+
+    this.option('repositoryName', {
+      type: String,
+      required: true,
+      desc: 'Name of the GitHub repository',
+    });
+
+    this.option('authorName', {
+      type: String,
+      required: true,
+      desc: 'Author name',
+    });
+
+    this.option('authorUrl', {
+      type: String,
+      required: true,
+      desc: 'Author url',
+    });
+
+    this.option('coveralls', {
+      type: Boolean,
+      required: true,
+      desc: 'Include coveralls badge',
+    });
+
+    this.option('content', {
+      type: String,
+      required: false,
+      desc: 'Readme content',
+    });
+  }
+
+  writing() {
+    const pkg = this.fs.readJSON(
+      this.destinationPath(this.options.generateInto, 'package.json'),
+      {},
     );
-  },
-});
+    this.fs.copyTpl(
+      this.templatePath('README.md'),
+      this.destinationPath(this.options.generateInto, 'README.md'),
+      {
+        projectName: this.options.name,
+        safeProjectName: _.camelCase(this.options.name),
+        escapedProjectName: querystring.escape(this.options.name),
+        repositoryName: this.options.repositoryName || this.options.name,
+        description: this.options.description,
+        githubAccount: this.options.githubAccount,
+        author: {
+          name: this.options.authorName,
+          url: this.options.authorUrl,
+        },
+        license: pkg.license,
+        includeCoveralls: this.options.coveralls,
+        content: this.options.content,
+      },
+    );
+  }
+};

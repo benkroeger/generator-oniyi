@@ -1,252 +1,200 @@
 'use strict';
 
-const toCase = require('to-case');
-const isUrl = require('is-url');
-const normalizeUrl = require('normalize-url');
-const mkdirp = require('mkdirp');
+// node core
+const path = require('path');
 
-const BaseWithHelpers = require('../base-with-helpers');
+// 3rd party
+const _ = require('lodash');
+const chalk = require('chalk');
+const validatePackageName = require('validate-npm-package-name');
+const Generator = require('yeoman-generator');
 
-const checkEmpty = (message) => (v) => {
-    if (!v.length) {
-      return message;
-    }
-    return true;
-  };
+// internal
+const generatorOptions = require('./options');
+const { extractAuthorDetails, makePropmts } = require('./helpers');
+const pkgJson = require('../../package.json');
 
-const checkUrl = (urlMessage) => (v) => {
-    if (v.length && !isUrl(normalizeUrl(v))) {
-      return urlMessage;
-    }
-    return true;
-  };
+module.exports = class extends Generator {
+  constructor(args, options) {
+    super(args, options);
 
-module.exports = class extends BaseWithHelpers {
-  constructor (args, opts) {
-    super(args, opts);
-
-    this.argument('name', {
-      type: String,
-      required: false,
-      desc: [
-        'module name',
-        'If provided the module will be created inside ./my-module/',
-        'otherwise it will be created in the current directory',
-        '',
-        'Examples:',
-        '',
-        '   $ yo oniyi',
-        '   $ yo oniyi my-module',
-        '',
-      ].join('\n  '),
-    });
-
-    this.option('all', {
-      type: Boolean,
-      required: false,
-      alias: 'a',
-      default: false,
-      desc: 'Ask all questions',
-    });
-
-    this.option('yes', {
-      type: Boolean,
-      required: false,
-      alias: 'y',
-      default: false,
-      desc: 'Skip some questions, like $ npm init -y',
+    _.forEach(generatorOptions, (config, name) => {
+      this.option(name, config);
     });
   }
 
-  async initializing() {
-    this.savedAnswers = this.config.getAll().promptValues || {};
-    this.shouldSkipAll = this.options.yes;
-    this.shouldAskAll = this.options.all;
+  initializing() {
+    this.pkg = this.fs.readJSON(this.destinationPath('package.json'), {});
 
-    const defaults = Object.assign({ githubUsername }, this.savedAnswers, {
-      moduleName: toCase.slug(this.name || this.appname),
-      moduleDescription: '',
-      moduleKeywords: '',
-      moduleLicense: 'UNLICENSED',
-      modulePrivacy: true,
-      coverage: true,
+    // check if this is a new package or we retrieved existing data
+    this.isNewPackage = _.size(this.pkg) > 0;
 
-      // additional not configurable props
-      src: 'lib/',
-      test: 'test/',
-    });
+    const { name, description, version, homepage, author } = this.pkg;
+    const { repositoryName, name: optionsName } = this.options;
 
-    this.props = Object.assign({}, defaults);
+    // Pre set the default props from the information we have at this point
+    this.props = {
+      name,
+      description,
+      version,
+      homepage,
+      repositoryName,
+    };
 
-    if (this.shouldSkipAll && this.shouldAskAll) {
-      this.log('You have chosen to ask both "all" and "minimum" questions!\n');
+    if (optionsName) {
+      const packageNameValidity = validatePackageName(optionsName);
+
+      if (packageNameValidity.validForNewPackages) {
+        this.props.name = optionsName;
+      } else {
+        const {
+          errors = ['The name option is not a valid npm package name.'],
+        } = packageNameValidity;
+        this.emit('error', new Error(errors.join('\n')));
+      }
     }
 
-    this.composeWith(require.resolve('generator-git-init'), {});
+    Object.assign(this.props, extractAuthorDetails(author));
+  }
 
-    this.composeWith(require.resolve('../src'), {
-      src: this.props.src,
+  prompting() {
+    const {
+      askForModuleName,
+      askFor,
+      askForTravis,
+      askForGithubAccount,
+    } = makePropmts(this);
+
+    return askForModuleName()
+      .then(askFor)
+      .then(askForTravis)
+      .then(askForGithubAccount);
+  }
+
+  writing() {
+    // Re-read the content at this point because a composed generator might modify it.
+    const currentPkg = this.fs.readJSON(
+      this.destinationPath('package.json'),
+      {},
+    );
+
+    const pkg = _.merge(
+      {
+        name: this.props.name,
+        version: this.props.version,
+        description: this.props.description,
+        homepage: this.props.homepage,
+        author: {
+          name: this.props.authorName,
+          email: this.props.authorEmail,
+          url: this.props.authorUrl,
+        },
+        files: [`/${this.options.projectRoot}`],
+        main: path
+          .join(this.options.projectRoot, 'index.js')
+          .replace(/\\/g, '/'),
+        devDependencies: {},
+        engines: {
+          node: `>= ${process.version}`,
+          // npm: '>= 4.0.0',
+        },
+      },
+      currentPkg,
+    );
+
+    if (this.props.includeCoveralls) {
+      pkg.devDependencies.coveralls = pkgJson.devDependencies.coveralls;
+    }
+
+    // Combine the keywords
+    if (this.props.keywords && this.props.keywords.length) {
+      pkg.keywords = _.uniq(this.props.keywords.concat(pkg.keywords)).filter(
+        Boolean,
+      );
+    }
+
+    // Let's extend package.json so we're not overwriting user previous fields
+    this.fs.writeJSON(this.destinationPath('package.json'), pkg);
+  }
+
+  default() {
+    if (this.options.travis) {
+      const options = { config: {} };
+
+      if (this.props.node) {
+        // eslint-disable-next-line camelcase
+        options.config.node_js = this.props.node.split(',');
+      }
+
+      if (this.props.includeCoveralls) {
+        // eslint-disable-next-line camelcase
+        options.config.after_script = 'cat ./coverage/lcov.info | coveralls';
+      }
+      this.composeWith(
+        require.resolve('generator-travis/generators/app'),
+        options,
+      );
+    }
+
+    this.composeWith(require.resolve('../eslint'));
+
+    this.composeWith(require.resolve('../git'), {
+      name: this.props.name,
+      githubAccount: this.props.githubAccount,
+      repositoryName: this.props.repositoryName,
     });
 
-    this.composeWith(require.resolve('../test'), {
-      src: this.props.src,
-      test: this.props.test,
-      coverage: this.props.coverage,
-    });
+    // this.composeWith(require.resolve('generator-jest/generators/app'), {
+    //   testEnvironment: 'node',
+    //   coveralls: false,
+    // });
 
-    this.composeWith(require.resolve('../setup'), {});
+    if (this.options.boilerplate) {
+      this.composeWith(require.resolve('../boilerplate'), {
+        name: this.props.localName,
+        sourceRoot: this.options.projectRoot,
+      });
+    }
+
+    if (this.options.license && !this.pkg.license) {
+      this.composeWith(require.resolve('generator-license/app'), {
+        name: this.props.authorName,
+        email: this.props.authorEmail,
+        website: this.props.authorUrl,
+      });
+    }
 
     if (!this.fs.exists(this.destinationPath('README.md'))) {
       this.composeWith(require.resolve('../readme'), {
-        githubUsername: this.props.githubUsername,
-        codecov: this.props.coverage,
-        yes: this.shouldSkipAll,
+        name: this.props.name,
+        description: this.props.description,
+        githubAccount: this.props.githubAccount,
+        repositoryName: this.props.repositoryName,
+        authorName: this.props.authorName,
+        authorUrl: this.props.authorUrl,
+        coveralls: this.props.includeCoveralls,
+        content: this.options.readme,
       });
     }
   }
 
-  async prompting () {
-    const self = this;
+  installing() {
+    this.npmInstall();
+  }
 
-    const prompts = [
-      // user info
-    {
-      name: 'name',
-      message: 'Your name:',
-      when: self.shouldAskUserInfo('name'),
-      validate: checkEmpty('Your name is required'),
-      store: true,
-    }, {
-      name: 'email',
-      message: 'Your email:',
-      when: self.shouldAskUserInfo('email'),
-      validate: checkEmpty('Your email is required'),
-      store: true,
-    }, {
-      name: 'website',
-      message: 'Your website:',
-      when: self.shouldAskUserInfo('website'),
-      validate: checkUrl('The input is not a valid url'),
-      filter: (v) => {
-        if (v.indexOf('.') === -1) {
-          return v;
-        }
-        return normalizeUrl(v);
-      },
-      required: false,
-      store: true,
-    },
+  end() {
+    this.log('Thanks for using Yeoman.');
 
-    // github account info
-    {
-      name: 'githubUsername',
-      message: 'Your github username:',
-      when: self.shouldAskUserInfo('githubUsername'),
-      store: true,
-    },
-  ];
-
-    this.answers = await this.prompt(prompts)
-      .then(answers => {
-        if (answers.website) {
-          return Object.assign({}, answers, { website: normalizeUlr(answers.website)});
-        }
-        return answers;
-      });
+    if (this.options.travis) {
+      const travisUrl = chalk.cyan(
+        `https://travis-ci.com/profile/${this.props.githubAccount || ''}`,
+      );
+      this.log(`- Enable Travis integration at ${travisUrl}`);
     }
 
-
-    },
-
-    moduleInfo() {
-      const self = this;
-      const prompts = [{
-        name: 'moduleName',
-        message: 'Module name:',
-        default: self.props.moduleName,
-        validate: checkEmpty('Module name is required'),
-        when: !self.shouldSkipAll,
-        filter: v => toCase.slug(v || ''),
-      }, {
-        name: 'moduleDescription',
-        message: 'Module description:',
-        validate: checkEmpty('Module description is required'),
-        when: !self.shouldSkipAll,
-      }, {
-        name: 'moduleKeywords',
-        message: 'Module keywords (comma to split):',
-        when: !self.shouldSkipAll,
-        filter: value => (value || '').split(',')
-          .map(el => el.trim())
-          .filter(Boolean),
-      }, {
-        name: 'moduleLicense',
-        message: 'License:',
-        default: self.props.moduleLicense,
-        when: !self.shouldSkipAll,
-      }, {
-        name: 'modulePrivacy',
-        type: 'confirm',
-        message: 'Is this a private module?',
-        default: self.props.modulePrivacy,
-        when: !self.shouldSkipAll,
-      }];
-      return self.prompt(prompts).then(answers =>
-        Object.assign(self.props, answers)
-      );
-    },
-
-    addOns() {
-      const self = this;
-      const prompts = [{
-        type: 'confirm',
-        name: 'coverage',
-        message: 'Do you need code coverage?',
-        when: !this.shouldSkipAll,
-        default: this.props.coverage,
-      }];
-      return self.prompt(prompts).then(answers =>
-        Object.assign(self.props, answers)
-      );
-    },
-  },
-
-  writing: {
-    pkg() {
-      const self = this;
-      if (self.name) {
-        // if the argument `name` is given create the project inside it
-        mkdirp(self.props.moduleName);
-        self.destinationRoot(self.destinationPath(self.props.moduleName));
-      }
-
-      // check if there's an existing package.json
-      const currentPkg = self.fs.readJSON(self.destinationPath('package.json'), {});
-      const pkg = {
-        name: self.props.moduleName,
-        version: '1.0.0',
-        description: self.props.moduleDescription,
-        license: self.props.moduleLicense,
-        private: self.props.modulePrivacy,
-        author: `${self.props.name} <${self.props.email}> (${this.props.website})`,
-        main: `${self.props.src}index.js`,
-        keywords: self.props.moduleKeywords,
-        repository: {
-          type: 'git',
-          url: `git+https://github.com/${self.props.githubUsername}/${this.props.moduleName}.git`,
-        },
-        scripts: {},
-        engines: {
-          node: `>=${process.version}`,
-        },
-      };
-
-      // Let's extend package.json so we're not overwriting user previous fields
-      self.fs.extendJSON(self.destinationPath('package.json'), pkg);
-    },
-
-    gitignore() {
-      this._gitignore(['.DS_Store', 'node_modules']);
-    },
-  },
+    if (this.props.includeCoveralls) {
+      const coverallsUrl = chalk.cyan('https://coveralls.io/repos/new');
+      this.log(`- Enable Coveralls integration at ${coverallsUrl}`);
+    }
+  }
 };
