@@ -9,12 +9,14 @@ const helpers = require('yeoman-test');
 
 // internal
 
+const GITHUB_USERNAME = 'unicornUser';
+
 jest.mock('npm-name', () => {
   return () => Promise.resolve(true);
 });
 
 jest.mock('github-username', () => {
-  return () => Promise.resolve('unicornUser');
+  return () => Promise.resolve(GITHUB_USERNAME);
 });
 
 jest.mock('generator-license/app', () => {
@@ -44,6 +46,7 @@ describe('node:app', () => {
         includeCoveralls: true,
         node: 'v10.4.1,v10',
       };
+
       return helpers
         .run(require.resolve('../generators/app'))
         .withPrompts(answers)
@@ -69,7 +72,7 @@ describe('node:app', () => {
               email: answers.authorEmail,
               url: answers.authorUrl,
             },
-            files: ['lib'],
+            files: ['/lib'],
             keywords: answers.keywords,
             main: 'lib/index.js',
           });
@@ -106,9 +109,10 @@ describe('node:app', () => {
         homepage: 'http://yeoman.io',
         repository: 'yeoman/generator-node',
         author: 'The Yeoman Team',
-        files: ['lib'],
+        files: ['/lib'],
         keywords: ['bar'],
       };
+
       return helpers
         .run(require.resolve('../generators/app'))
         .withPrompts({ name: 'generator-node' })
@@ -194,7 +198,9 @@ describe('node:app', () => {
         .then(() => {
           assert.file('package.json');
           assert.jsonFileContent('package.json', {
-            repository: 'yeoman/not-generator-node',
+            repository: {
+              url: 'github:yeoman/not-generator-node',
+            },
           });
 
           assert.file('README.md');
@@ -226,19 +232,10 @@ describe('node:app', () => {
         .withOptions({ projectRoot: 'generators' })
         .then(() => {
           assert.jsonFileContent('package.json', {
-            files: ['generators'],
+            files: ['/generators'],
             main: 'generators/index.js',
           });
         });
-    });
-  });
-
-  describe('--no-editorconfig', () => {
-    it('include the raw files', () => {
-      return helpers
-        .run(require.resolve('../generators/app'))
-        .withOptions({ editorconfig: false })
-        .then(() => assert.noFile('.editorconfig'));
     });
   });
 });

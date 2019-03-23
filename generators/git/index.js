@@ -3,8 +3,9 @@
 // node core
 
 // 3rd party
+const _ = require('lodash');
 const Generator = require('yeoman-generator');
-const originUrl = require('git-remote-origin-url');
+const parseGithubUrl = require('parse-github-url');
 
 // internal
 
@@ -27,21 +28,20 @@ module.exports = class extends Generator {
       desc: 'Relocate the location of the generated files.',
     });
 
-    this.option('githubAccount', {
+    this.option('repositoryUrl', {
       type: String,
       required: true,
-      desc: 'GitHub username or organization',
+      desc: 'Repository url to be used in `package.json`',
     });
 
-    this.option('repositoryName', {
+    this.option('originUrl', {
       type: String,
-      required: true,
-      desc: 'Name of the GitHub repository',
+      required: false,
+      desc: 'Existing `origin` remote url for git repository',
     });
   }
 
   initializing() {
-    const generatorInstance = this;
     this.fs.copy(
       this.templatePath('gitattributes'),
       this.destinationPath(this.options.generateInto, '.gitattributes'),
@@ -52,47 +52,39 @@ module.exports = class extends Generator {
       this.destinationPath(this.options.generateInto, '.gitignore'),
     );
 
-    return originUrl(this.destinationPath(this.options.generateInto)).then(
-      url => {
-        generatorInstance.originUrl = url;
-      },
-      () => {
-        generatorInstance.originUrl = '';
-      },
-    );
+    // need to do this here so that git init is done before installing dependencies
+    // (required for `husky` to setup git hooks)
+    this.spawnCommandSync('git', ['init', '--quiet'], {
+      cwd: this.destinationPath(this.options.generateInto),
+    });
   }
 
   writing() {
-    const pkg = readPkg(this);
+    const { repositoryUrl } = this.options;
 
-    const { githubAccount, repositoryName } = this.options;
-    let repository;
-    if (this.originUrl) {
-      repository = this.originUrl;
-    } else if (githubAccount && repositoryName) {
-      repository = `${githubAccount}/${repositoryName}`;
-    }
-
-    pkg.repository = pkg.repository || repository;
-
-    this.fs.writeJSON(
+    this.fs.extendJSON(
       this.destinationPath(this.options.generateInto, 'package.json'),
-      pkg,
+      {
+        repository: {
+          type: 'git',
+          url: repositoryUrl,
+        },
+      },
     );
   }
 
   end() {
     const pkg = readPkg(this);
 
-    this.spawnCommandSync('git', ['init', '--quiet'], {
-      cwd: this.destinationPath(this.options.generateInto),
-    });
-
-    if (pkg.repository && !this.originUrl) {
-      let repoSSH = pkg.repository;
-      if (pkg.repository && pkg.repository.indexOf('.git') === -1) {
-        repoSSH = `git@github.com:${pkg.repository}.git`;
+    if (_.has(pkg, 'repository.url') && !this.options.originUrl) {
+      const repositoryUrl = _.get(pkg, 'repository.url');
+      if (!repositoryUrl) {
+        // this.log('warn', 'something went wrong with the repository url. it\'s not supposed to be empty'):
+        // this.emit('error');
+        return;
       }
+      const parsedUrl = parseGithubUrl(repositoryUrl);
+      const repoSSH = `git@github.com:${parsedUrl.repository}.git`;
 
       this.spawnCommandSync('git', ['remote', 'add', 'origin', repoSSH], {
         cwd: this.destinationPath(this.options.generateInto),
