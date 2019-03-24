@@ -1,4 +1,4 @@
-# generator-oniyi
+# generator-oniyi [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage percentage][coveralls-image]][coveralls-url]
 
 An opinionated generator for node.js projects.
 
@@ -55,6 +55,16 @@ lint-staged
   - default to Apache-2.0
 
 Mostly based on [generator-node](https://github.com/yeoman/generator-node), so thanks to the [team](https://github.com/yeoman/generator-node/graphs/contributors) over there.
+
 ## License
 
 Apache-2.0 © [Benjamin Kroeger](https://github.com/benkroeger)
+
+[npm-image]: https://badge.fury.io/js/generator-oniyi.svg
+[npm-url]: https://npmjs.org/package/generator-oniyi
+[travis-image]: https://travis-ci.com/benkroeger/generator-oniyi.svg?branch=master
+[travis-url]: https://travis-ci.com/benkroeger/generator-oniyi
+[daviddm-image]: https://david-dm.org/benkroeger/generator-oniyi.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/benkroeger/generator-oniyi
+[coveralls-image]: https://coveralls.io/repos/benkroeger/generator-oniyi/badge.svg
+[coveralls-url]: https://coveralls.io/r/benkroeger/generator-oniyi
