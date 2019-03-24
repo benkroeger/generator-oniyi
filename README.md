@@ -55,3 +55,6 @@ lint-staged
   - default to Apache-2.0
 
 Mostly based on [generator-node](https://github.com/yeoman/generator-node), so thanks to the [team](https://github.com/yeoman/generator-node/graphs/contributors) over there.
+## License
+
+Apache-2.0 © [Benjamin Kroeger](https://github.com/benkroeger)
