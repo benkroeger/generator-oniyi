@@ -9,42 +9,42 @@ const helpers = require('yeoman-test');
 
 // internal
 
-const GITHUB_USERNAME = 'unicornUser';
-
 jest.mock('npm-name', () => {
   return () => Promise.resolve(true);
 });
 
 jest.mock('github-username', () => {
-  return () => Promise.resolve(GITHUB_USERNAME);
+  return () => Promise.resolve('unicornUser');
 });
 
-jest.mock('generator-license/app', () => {
-  /**
-   * due to babel-plugin-jest-hoist not allowing to access out-of-scope
-   * variables in `jest.mock`, we'll need to double-require `yeoman-test`
-   * here
-   */
+// jest.mock('generator-license/app', () => {
+//   /**
+//    * due to babel-plugin-jest-hoist not allowing to access out-of-scope
+//    * variables in `jest.mock`, we'll need to double-require `yeoman-test`
+//    * here
+//    */
 
-  // eslint-disable-next-line global-require
-  const scopedTestHelpers = require('yeoman-test');
-  return scopedTestHelpers.createDummyGenerator();
-});
+//   // eslint-disable-next-line global-require
+//   const scopedTestHelpers = require('yeoman-test');
+//   return scopedTestHelpers.createDummyGenerator();
+// });
 
 describe('node:app', () => {
   describe('running on new project', () => {
     it('scaffold a full project', () => {
       const answers = {
-        name: 'generator-node',
-        description: 'A node generator',
-        homepage: 'http://yeoman.io',
-        githubAccount: 'yeoman',
-        authorName: 'The Yeoman Team',
-        authorEmail: 'hi@yeoman.io',
-        authorUrl: 'http://yeoman.io',
-        keywords: ['foo', 'bar'],
-        includeCoveralls: true,
-        node: 'v10.4.1,v10',
+        name: 'generator-oniyi',
+        description: 'An opinionated node generator',
+        homepage: 'https://oniyi.io',
+        authorName: 'The Oniyi Team',
+        authorEmail: 'hi@oniyi.io',
+        authorUrl: 'https://oniyi.io',
+        keywords: ['oniyi', 'generator'],
+        githubAccount: 'oniyi',
+        repositoryName: 'generator-oniyi',
+        repositoryUrl: 'github:oniyi/generator-oniyi',
+        nodeVersions: 'v10.4.1,v10',
+        license: 'Apache-2.0',
       };
 
       return helpers
@@ -52,21 +52,31 @@ describe('node:app', () => {
         .withPrompts(answers)
         .then(() => {
           assert.file([
-            '.travis.yml',
-            '.gitignore',
+            '.eslintignore',
+            '.eslintrc.js',
             '.gitattributes',
-            'README.md',
+            '.gitignore',
+            '.huskyrc.js',
+            '.npmignore',
+            '.npmrc',
+            'jest.config.js',
+            'lib/__tests__/generatorOniyi.test.js',
             'lib/index.js',
-            'lib/__tests__/generatorNode.test.js',
+            'LICENSE',
+            'lint-staged.config.js',
+            'prettier.config.js',
           ]);
 
           assert.file('package.json');
           assert.jsonFileContent('package.json', {
-            name: 'generator-node',
+            name: answers.name,
             version: '0.0.0',
             description: answers.description,
             homepage: answers.homepage,
-            repository: 'yeoman/generator-node',
+            repository: {
+              type: 'git',
+              url: answers.repositoryUrl,
+            },
             author: {
               name: answers.authorName,
               email: answers.authorEmail,
@@ -75,25 +85,29 @@ describe('node:app', () => {
             files: ['/lib'],
             keywords: answers.keywords,
             main: 'lib/index.js',
+            license: answers.license,
           });
 
           assert.file('README.md');
           assert.fileContent(
             'README.md',
-            "const generatorNode = require('generator-node');",
+            `const generatorOniyi = require('${answers.name}');`,
           );
-          assert.fileContent('README.md', '> A node generator');
-          assert.fileContent('README.md', 'npm install --save generator-node');
+          assert.fileContent('README.md', `> ${answers.description}`);
+          assert.fileContent('README.md', `npm install --save ${answers.name}`);
           assert.fileContent(
             'README.md',
-            '© [The Yeoman Team](http://yeoman.io)',
+            `© [${answers.authorName}](${answers.authorUrl})`,
           );
           assert.fileContent(
             'README.md',
-            '[travis-image]: https://travis-ci.com/yeoman/generator-node.svg?branch=master',
+            `[travis-image]: https://travis-ci.com/${answers.githubAccount}/${
+              answers.name
+            }.svg?branch=master`,
           );
           assert.fileContent('README.md', 'coveralls');
 
+          assert.file('.travis.yml');
           assert.fileContent('.travis.yml', '| coveralls');
           assert.fileContent('.travis.yml', '- v10.4.1');
           assert.fileContent('.travis.yml', '- v10');
@@ -106,24 +120,28 @@ describe('node:app', () => {
       const pkg = {
         version: '1.0.34',
         description: 'lots of fun',
-        homepage: 'http://yeoman.io',
-        repository: 'yeoman/generator-node',
-        author: 'The Yeoman Team',
+        homepage: 'https://oniyi.io',
+        repository: 'oniyi/generator-oniyi',
+        author: 'The Oniyi Team',
         files: ['/lib'],
         keywords: ['bar'],
       };
 
       return helpers
         .run(require.resolve('../generators/app'))
-        .withPrompts({ name: 'generator-node' })
+        .withPrompts({ name: 'generator-oniyi' })
         .on('ready', gen => {
           gen.fs.writeJSON(gen.destinationPath('package.json'), pkg);
           gen.fs.write(gen.destinationPath('README.md'), 'foo');
         })
         .then(() => {
-          const newPkg = _.extend({ name: 'generator-node' }, pkg);
+          const newPkg = _.extend({ name: 'generator-oniyi' }, pkg);
           assert.jsonFileContent('package.json', newPkg);
           assert.fileContent('README.md', 'foo');
+          assert.fileContent(
+            '.git/config',
+            `[remote "origin"]\n	url = git@github.com:${pkg.repository}.git`,
+          );
         });
     });
   });
@@ -133,56 +151,88 @@ describe('node:app', () => {
       return helpers
         .run(require.resolve('../generators/app'))
         .withOptions({
-          name: '@some-scope/generator-node',
-          githubAccount: 'yeoman',
+          name: '@some-scope/generator-oniyi',
+          githubAccount: 'oniyi',
         })
         .then(() => {
-          assert.file('lib/__tests__/someScopeGeneratorNode.test.js');
+          assert.file('lib/__tests__/generatorOniyi.test.js');
 
           assert.file('package.json');
           assert.jsonFileContent('package.json', {
-            name: '@some-scope/generator-node',
-            repository: 'yeoman/generator-node',
+            name: '@some-scope/generator-oniyi',
+            repository: {
+              type: 'git',
+              url: 'github:oniyi/generator-oniyi',
+            },
           });
 
           assert.file('README.md');
           assert.fileContent(
             'README.md',
-            "const someScopeGeneratorNode = require('@some-scope/generator-node');",
+            "const someScopeGeneratorOniyi = require('@some-scope/generator-oniyi');",
           );
           assert.fileContent(
             'README.md',
-            'npm install --save @some-scope/generator-node',
+            'npm install --save @some-scope/generator-oniyi',
           );
           assert.fileContent(
             'README.md',
-            '[travis-image]: https://travis-ci.com/yeoman/generator-node.svg?branch=master',
+            '[travis-image]: https://travis-ci.com/oniyi/generator-oniyi.svg?branch=master',
           );
           assert.fileContent(
             '.git/config',
-            '[remote "origin"]\n	url = git@github.com:yeoman/generator-node.git',
+            '[remote "origin"]\n	url = git@github.com:oniyi/generator-oniyi.git',
           );
         });
     });
 
-    it('throws when an invalid name is supplied', async () => {
-      await expect(
-        helpers.run(require.resolve('../generators/app')).withOptions({
-          name: '@/invalid-name',
-          githubAccount: 'yeoman',
-        }),
-      ).rejects.toMatchInlineSnapshot(
-        `[Error: name can only contain URL-friendly characters]`,
-      );
+    it('uses scope as githubAccount when not provided separately', () =>
+      helpers
+        .run(require.resolve('../generators/app'))
+        .withOptions({
+          name: '@some-scope/generator-oniyi',
+        })
+        .then(() => {
+          assert.file('lib/__tests__/generatorOniyi.test.js');
 
-      await expect(
-        helpers.run(require.resolve('../generators/app')).withOptions({
-          name: 'invalid@name',
-          githubAccount: 'yeoman',
-        }),
-      ).rejects.toMatchInlineSnapshot(
-        `[Error: name can only contain URL-friendly characters]`,
-      );
+          assert.file('package.json');
+          assert.jsonFileContent('package.json', {
+            name: '@some-scope/generator-oniyi',
+            repository: {
+              type: 'git',
+              url: 'github:some-scope/generator-oniyi',
+            },
+          });
+
+          assert.file('README.md');
+          assert.fileContent(
+            'README.md',
+            "const someScopeGeneratorOniyi = require('@some-scope/generator-oniyi');",
+          );
+          assert.fileContent(
+            'README.md',
+            'npm install --save @some-scope/generator-oniyi',
+          );
+          assert.fileContent(
+            'README.md',
+            '[travis-image]: https://travis-ci.com/some-scope/generator-oniyi.svg?branch=master',
+          );
+          assert.fileContent(
+            '.git/config',
+            '[remote "origin"]\n	url = git@github.com:some-scope/generator-oniyi.git',
+          );
+        }));
+
+    it('throws when an invalid name is supplied', () => {
+      ['@/invalid-name', 'invalid@name'].forEach(async name => {
+        await expect(
+          helpers.run(require.resolve('../generators/app')).withOptions({
+            name,
+          }),
+        ).rejects.toMatchInlineSnapshot(
+          `[Error: name can only contain URL-friendly characters]`,
+        );
+      });
     });
   });
 
@@ -191,26 +241,26 @@ describe('node:app', () => {
       return helpers
         .run(require.resolve('../generators/app'))
         .withOptions({
-          name: 'generator-node',
-          githubAccount: 'yeoman',
-          repositoryName: 'not-generator-node',
+          name: 'generator-oniyi',
+          githubAccount: 'oniyi',
+          repositoryName: 'not-generator-oniyi',
         })
         .then(() => {
           assert.file('package.json');
           assert.jsonFileContent('package.json', {
             repository: {
-              url: 'github:yeoman/not-generator-node',
+              url: 'github:oniyi/not-generator-oniyi',
             },
           });
 
           assert.file('README.md');
           assert.fileContent(
             'README.md',
-            '[travis-image]: https://travis-ci.com/yeoman/not-generator-node.svg?branch=master',
+            '[travis-image]: https://travis-ci.com/oniyi/not-generator-oniyi.svg?branch=master',
           );
           assert.fileContent(
             '.git/config',
-            '[remote "origin"]\n	url = git@github.com:yeoman/not-generator-node.git',
+            '[remote "origin"]\n	url = git@github.com:oniyi/not-generator-oniyi.git',
           );
         });
     });
@@ -225,11 +275,137 @@ describe('node:app', () => {
     });
   });
 
-  describe('--projectRoot', () => {
+  describe('--no-coveralls', () => {
+    beforeEach(() => {
+      const answers = {
+        name: '@oniyi/generator-oniyi',
+      };
+
+      return helpers
+        .run(require.resolve('../generators/app'))
+        .withOptions({ coveralls: false })
+        .withPrompts(answers);
+    });
+
+    it("doesn't add after_script to .travis.yml", () => {
+      assert.noFileContent('.travis.yml', 'coveralls');
+    });
+  });
+
+  describe('--no-git', () => {
+    beforeEach(() =>
+      helpers
+        .run(require.resolve('../generators/app'))
+        .withOptions({ git: false }),
+    );
+
+    it('skips .travis.yml and coveralls', () => {
+      assert.noFile('.travis.yml');
+      assert.noFileContent('README.md', 'coveralls');
+    });
+
+    it('does not add repository to package.json', () => {
+      assert.noJsonFileContent('package.json', {
+        repository: 1,
+      });
+    });
+
+    it('does not setup git repo', () => {
+      assert.noFile('.git');
+    });
+  });
+
+  describe('--no-boilerplate', () => {
+    beforeEach(() => {
+      const answers = {
+        name: '@oniyi/generator-oniyi',
+      };
+
+      return helpers
+        .run(require.resolve('../generators/app'))
+        .withOptions({ boilerplate: false })
+        .withPrompts(answers)
+        .on('ready', generatorInstance => {
+          generatorInstance.fs.writeJSON(
+            generatorInstance.destinationPath('package.json'),
+            {
+              scripts: {},
+            },
+          );
+        });
+    });
+
+    it('skips creating files from boilerplate/templates', () => {
+      assert.noFile([
+        '.eslintignore',
+        '.eslintrc.js',
+        '.huskyrc.js',
+        '.npmignore',
+        '.npmrc',
+        'jest.config.js',
+        'lib/__tests__/generatorOniyi.test.js',
+        'lib/index.js',
+        'lint-staged.config.js',
+        'prettier.config.js',
+      ]);
+    });
+
+    it("doesn't define devDependencies", () => {
+      [
+        'coveralls', // TODO only include when coveralls is selected
+        'eslint',
+        'eslint-config-airbnb-base',
+        'eslint-config-prettier',
+        'eslint-plugin-import',
+        'eslint-plugin-prettier',
+        'husky',
+        'jest',
+        'lint-staged',
+        'prettier',
+      ].forEach(devDependency =>
+        assert.noJsonFileContent('package.json', {
+          devDependencies: { [devDependency]: 1 },
+        }),
+      );
+    });
+
+    it("doesn't define scripts", () => {
+      ['pretest', 'test', 'lint', 'format'].forEach(scriptName =>
+        assert.noJsonFileContent('package.json', {
+          scripts: { [scriptName]: 1 },
+        }),
+      );
+    });
+  });
+
+  describe('--no-license', () => {
+    beforeEach(() => {
+      const answers = {
+        name: '@oniyi/generator-oniyi',
+      };
+
+      return helpers
+        .run(require.resolve('../generators/app'))
+        .withOptions({ license: false })
+        .withPrompts(answers);
+    });
+
+    it('skips creating LICENSE file', () => {
+      assert.noFile(['LICENSE']);
+    });
+
+    it("doesn't define license prop in package.json", () => {
+      assert.noJsonFileContent('package.json', {
+        license: 1,
+      });
+    });
+  });
+
+  describe('--project-root', () => {
     it('include the raw files', () => {
       return helpers
         .run(require.resolve('../generators/app'))
-        .withOptions({ projectRoot: 'generators' })
+        .withOptions({ 'project-root': 'generators' })
         .then(() => {
           assert.jsonFileContent('package.json', {
             files: ['/generators'],

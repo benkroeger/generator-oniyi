@@ -138,9 +138,7 @@ const makePropmts = generatorInstance => {
               name: 'keywords',
               message: 'Package keywords (comma to split)',
               when: !generatorInstance.pkg.keywords,
-              filter(words) {
-                return words.split(/\s*,\s*/g);
-              },
+              filter: words => words.split(/\s*,\s*/g),
             },
           ];
 
@@ -212,6 +210,7 @@ const makePropmts = generatorInstance => {
                         originUrl ||
                         pkgRepositoryUrl ||
                         `github:${githubAccount}/${repositoryName}`,
+                      // when: !originUrl,
                     },
                   ])
                   .then(({ repositoryUrl }) => {

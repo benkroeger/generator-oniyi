@@ -74,6 +74,7 @@ module.exports = class extends Generator {
       this.destinationPath(this.options.generateInto, 'package.json'),
       {},
     );
+
     this.fs.copyTpl(
       this.templatePath('README.md'),
       this.destinationPath(this.options.generateInto, 'README.md'),

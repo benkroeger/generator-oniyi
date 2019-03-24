@@ -13,11 +13,11 @@ const validatePackageName = require('validate-npm-package-name');
 const generatorOptions = require('./options');
 const { extractAuthorDetails, makePropmts } = require('./helpers');
 
-const includeGit = ({ git = true }) => !!git;
-const includeBoilerplate = ({ boilerplate = true }) => !!boilerplate;
-const includeLicense = ({ license = true }) => !!license;
+const includeGit = ({ git }) => !!git;
+const includeBoilerplate = ({ boilerplate }) => !!boilerplate;
+const includeLicense = ({ license }) => !!license;
 
-const includeCoveralls = ({ git = true, coveralls = true }) => {
+const includeCoveralls = ({ git, coveralls }) => {
   if (!git) {
     return false;
   }
@@ -25,7 +25,7 @@ const includeCoveralls = ({ git = true, coveralls = true }) => {
   return !!coveralls;
 };
 
-const includeTravis = ({ git = true, travis = true }) => {
+const includeTravis = ({ git, travis }) => {
   if (!git) {
     return false;
   }
@@ -179,6 +179,7 @@ module.exports = class extends Generator {
         name: this.props.authorName,
         email: this.props.authorEmail,
         website: this.props.authorUrl,
+        defaultLicense: 'Apache-2.0',
       });
     }
 
@@ -204,7 +205,7 @@ module.exports = class extends Generator {
 
     if (this.props.includeTravis) {
       const travisUrl = chalk.cyan(
-        `https://travis-ci.com/profile/${this.props.githubAccount || ''}`,
+        `https://travis-ci.com/profile/${this.props.githubAccount}`,
       );
       this.log(`- Enable Travis integration at ${travisUrl}`);
     }

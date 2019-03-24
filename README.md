@@ -10,6 +10,10 @@ Prettier
 husky
 lint-staged
 
+- when `git` option is set to false, `coveralls` and `travis` are false / disabled automatically
+- the `git` sub-generator will not overwrite any existing `repository` data in `package.json`  
+  it will however attempt to register a ssh url version of `package.json#repository[.url]` as git remote `origin` if no `origin` exists yet
+
 ## what options should one have
 
 - add testing? (jest)

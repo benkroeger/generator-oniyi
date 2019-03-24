@@ -13,8 +13,7 @@ describe('node:git', () => {
     return helpers
       .run(require.resolve('../generators/git'))
       .withOptions({
-        githubAccount: 'yeoman',
-        repositoryName: 'generator-node',
+        repositoryUrl: 'github:oniyi/generator-oniyi',
       })
       .then(() => {
         assert.file('.gitignore');
@@ -23,12 +22,15 @@ describe('node:git', () => {
 
         assert.file('package.json');
         assert.jsonFileContent('package.json', {
-          repository: 'yeoman/generator-node',
+          repository: {
+            type: 'git',
+            url: 'github:oniyi/generator-oniyi',
+          },
         });
 
         assert.fileContent(
           '.git/config',
-          '[remote "origin"]\n	url = git@github.com:yeoman/generator-node.git',
+          '[remote "origin"]\n	url = git@github.com:oniyi/generator-oniyi.git',
         );
       });
   });
@@ -37,8 +39,7 @@ describe('node:git', () => {
     return helpers
       .run(require.resolve('../generators/git'))
       .withOptions({
-        githubAccount: 'other-account',
-        repositoryName: 'other-name',
+        repositoryUrl: 'github:other-account/other-name',
         generateInto: 'other/',
       })
       .then(() => {
@@ -48,7 +49,10 @@ describe('node:git', () => {
 
         assert.file('other/package.json');
         assert.jsonFileContent('other/package.json', {
-          repository: 'other-account/other-name',
+          repository: {
+            type: 'git',
+            url: 'github:other-account/other-name',
+          },
         });
 
         assert.fileContent(
@@ -58,11 +62,21 @@ describe('node:git', () => {
       });
   });
 
-  it("doesn't add remote `origin` when `githubAccount` isn't passed", () => {
+  it("adds remote `origin` from `package.json#repository` when `originUrl` and `repositoryUrl` aren't passed", () => {
+    const pkg = {
+      name: 'some-name',
+      version: '1.0.0',
+      description: 'lots of fun',
+      repository: 'some-account/some-name',
+    };
+
     return helpers
       .run(require.resolve('../generators/git'))
-      .withOptions({
-        repositoryName: 'other-name',
+      .on('ready', generatorInstance => {
+        generatorInstance.fs.writeJSON(
+          generatorInstance.destinationPath('package.json'),
+          pkg,
+        );
       })
       .then(() => {
         assert.file('.gitignore');
@@ -70,16 +84,27 @@ describe('node:git', () => {
         assert.file('.git');
         assert.file('package.json');
 
-        assert.noFileContent('package.json', '"repository"');
-        assert.noFileContent('.git/config', '[remote "origin"]');
+        assert.fileContent(
+          '.git/config',
+          '[remote "origin"]\n	url = git@github.com:some-account/some-name.git',
+        );
       });
   });
 
-  it("doesn't add remote `origin` when `repositoryName` isn't passed", () => {
+  it("doesn't add remote `origin` when `originUrl` and `repositoryUrl` aren't passed and `package.json#repository` is empty", () => {
+    const pkg = {
+      name: 'some-name',
+      version: '1.0.0',
+      description: 'lots of fun',
+    };
+
     return helpers
       .run(require.resolve('../generators/git'))
-      .withOptions({
-        githubAccount: 'other-account',
+      .on('ready', generatorInstance => {
+        generatorInstance.fs.writeJSON(
+          generatorInstance.destinationPath('package.json'),
+          pkg,
+        );
       })
       .then(() => {
         assert.file('.gitignore');
