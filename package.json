@@ -1,7 +1,7 @@
 {
   "name": "generator-oniyi",
   "version": "2.0.1",
-  "description": "An opinionated generator for node.js modules. Making use of ESLint, Prettier, AVA, NYC",
+  "description": "An opinionated generator for node.js modules. Making use of ESLint, Prettier, Jest, Travis, Coveralls, Husky, and Lint-Staged",
   "homepage": "https://github.com/benkroeger/generator-oniyi",
   "author": "Benjamin Kroeger <benjamin.kroeger@gmail.com>",
   "files": [
@@ -38,8 +38,7 @@
     "node",
     "eslint",
     "prettier",
-    "ava",
-    "nyc"
+    "jest"
   ],
   "bugs": {
     "url": "https://github.com/benkroeger/generator-oniyi/issues"
@@ -47,7 +46,6 @@
   "scripts": {
     "format": "prettier --write \"**/*.{js,json}\"",
     "lint": "eslint .",
-    "start:dev": "ROARR_LOG=true node lib/index.js | roarr pretty-print",
     "pretest": "eslint .",
     "test": "jest"
   },
