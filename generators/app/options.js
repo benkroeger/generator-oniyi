@@ -46,7 +46,7 @@ module.exports = {
     type: Boolean,
     required: false,
     default: true,
-    desc: 'Execute coveralls sub-generator',
+    desc: 'Include coveralls configuration',
   },
 
   'project-root': {

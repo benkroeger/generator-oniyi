@@ -2,59 +2,56 @@
 
 An opinionated generator for node.js projects.
 
-Coveralls
-Travis
-Jest
-ESLint (Airbnb/base)
-Prettier
-husky
-lint-staged
+Mostly based on [generator-node](https://github.com/yeoman/generator-node), so thanks to the [team](https://github.com/yeoman/generator-node/graphs/contributors) over there.
+
+It creates a boilerplate project setup composed from multiple sub-generators and finally installs dependencies via `npm`.
+
+## options
+
+All `boolean` options can be set to false with `--no-<option>` (e.g. `--no-git`)
+
+- **git**; (default: `true`) - Execute git sub-generator
+- **boilerplate**; (default: `true`) - Execute boilerplate sub-generator
+- **license**; (default: `true`) - Execute license sub-generator
+- **readme**; (default: `true`) - Execute readme sub-generator
+- **travis**; (default: `true`) - Execute travis sub-generator
+- **coveralls**; (default: `true`) - Include coveralls configuration
+- **project-root**; (default: `'lib'`) - Relative path to the project code root (folder in repo where code resides)
+- [**name**]: (default: `dirname`) - The name for this module
+- [**github-account**]; (default: `@<scope>` from `name` or resolved from `authorEmail`) - The name of the account on Github that hosts your repository
+- [**repository-name**]; (default: `name` of the module; `repository` from `package.json` or from `git remote origin`) - The name of your repository on Github
+
+## boilerplate generator
+
+- copies `devDependencies` and `scripts` from the generator's `package.json` into your project's `package.json`
+- creates `.npmrc` and `.npmignore` files
+- creates `lib/index.js` and `lib/__tests__/<module-name>.test.js`
+- creates `eslint` config files (combines rules from `airbnb-base` and `prettier`)
+- creates `jest.config.js`
+- creates `prettier.config.js`
+- creates config files for git hook tooling `huskyrc.js` and `lint-staged.config.js`
+
+## git generator
+
+This sub-generator will not overwrite any existing `repository` data in `package.json`.  
+It will however attempt to register a ssh url version of `package.json#repository[.url]` as git remote `origin` if no `origin` exists yet.
 
 - when `git` option is set to false, `coveralls` and `travis` are false / disabled automatically
-- the `git` sub-generator will not overwrite any existing `repository` data in `package.json`  
-  it will however attempt to register a ssh url version of `package.json#repository[.url]` as git remote `origin` if no `origin` exists yet
+- add `.gitignore` and `.gitattributes` files
+- prompts for github account (see option `github-account`)
+- prompts repository name (see option `repository-name`)
+- adds `repository` information to `package.json`
+- adds git remote origin if none exists
 
-## what options should one have
+## readme generator
 
-- add testing? (jest)
-  - add jest dependency
-  - jest config file
-  - add jest to `npm test` script
-  - add `**/__tests__/**`, `**/__mocks__/**`, `**/?(*.)+(spec|test).[jt]s?(x)` to `.npmignore` (see [jest docs](https://jestjs.io/docs/en/configuration#testmatch-array-string))
-  - boilerplate test file? generator-jest
-- report coverage to coveralls? (only available when adding test framework)
-  - configure jest to collect coverage data and generate report
-  - add coveralls dependency
-  - modify test script to pipe results to coveralls
-  - configure travis after_script to publish coverage to coveralls
-- linting?
-  - add dev dependencies
-    - eslint
-    - eslint-config-airbnb-base
-    - eslint-config-prettier
-    - eslint-plugin-import
-    - eslint-plugin-prettier
-    - prettier
-  - add `eslint .` to `npm pretest` script
-  - add `.eslintrc.js` and `.eslintignore` files
-- git?
-  - add `.gitignore` and `.gitattributes` files
-  - prompt repo owner / org (try extract from package name)
-  - prompt repo name (try extract from package name)
-  - prompt github username (try find by email address)
-  - generate repo data for package.json
-  - add remote origin
-  - if linting was selected, want automatic git hook setup?
-    - add husky and lint-staged
-    - add `.huskyrc.js` and `lint-staged.config.js`
-- travis?
-  - invoke generator-travis
-  - prompt node versions to run travis on?
-- license?
-  - invoke generator-license
-  - default to Apache-2.0
+- generates boilerplate readme if none exists alreads
+- composes readme info from propmts collected upfront (user, lincese, badges)
 
-Mostly based on [generator-node](https://github.com/yeoman/generator-node), so thanks to the [team](https://github.com/yeoman/generator-node/graphs/contributors) over there.
+## external sub-generators
+
+- invokes [generator-travis](https://github.com/iamstarkov/generator-travis) when `travis` option is `true`. When `coveralls` option is also `true`, will add `after_script` in travis config to publish coverage report data to coveralls.
+- invokes [generator-license](https://github.com/jozefizso/generator-license) and default to `Apache-2.0` license.
 
 ## License
 
