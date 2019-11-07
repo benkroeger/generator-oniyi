@@ -20,6 +20,7 @@ module.exports = {
   plugins: ['prettier'],
   extends: ['airbnb-base', 'prettier'],
   rules: {
+    strict: ['error', 'safe'],
     'prettier/prettier': 'error',
   },
 };
