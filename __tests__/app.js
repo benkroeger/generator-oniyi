@@ -101,9 +101,7 @@ describe('node:app', () => {
           );
           assert.fileContent(
             'README.md',
-            `[travis-image]: https://travis-ci.com/${answers.githubAccount}/${
-              answers.name
-            }.svg?branch=master`,
+            `[travis-image]: https://travis-ci.com/${answers.githubAccount}/${answers.name}.svg?branch=master`,
           );
           assert.fileContent('README.md', 'coveralls');
 
