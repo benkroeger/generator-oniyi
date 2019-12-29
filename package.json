@@ -10,18 +10,18 @@
   ],
   "main": "index.js",
   "devDependencies": {
-    "coveralls": "3.0.9",
-    "eslint": "6.8.0",
-    "eslint-config-airbnb-base": "14.0.0",
-    "eslint-config-prettier": "6.9.0",
-    "eslint-plugin-import": "2.19.1",
-    "eslint-plugin-prettier": "3.1.2",
-    "husky": "3.1.0",
-    "jest": "24.9.0",
-    "lint-staged": "9.5.0",
-    "prettier": "1.19.1",
-    "yeoman-assert": "3.1.1",
-    "yeoman-test": "2.0.0"
+    "coveralls": "^3.0.9",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "husky": "^3.1.0",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.5.0",
+    "prettier": "^1.19.1",
+    "yeoman-assert": "^3.1.1",
+    "yeoman-test": "^2.0.0"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -50,17 +50,17 @@
     "test": "jest"
   },
   "dependencies": {
-    "chalk": "3.0.0",
-    "generator-jest": "1.7.0",
-    "generator-license": "5.4.0",
-    "generator-travis": "1.9.0",
-    "git-remote-origin-url": "3.0.0",
-    "github-username": "5.0.1",
-    "inquirer-npm-name": "3.0.0",
-    "lodash": "4.17.15",
-    "parse-author": "2.0.0",
-    "parse-github-url": "1.0.2",
-    "validate-npm-package-name": "3.0.0",
-    "yeoman-generator": "4.4.0"
+    "chalk": "^3.0.0",
+    "generator-jest": "^1.7.0",
+    "generator-license": "^5.4.0",
+    "generator-travis": "^1.9.0",
+    "git-remote-origin-url": "^3.0.0",
+    "github-username": "^5.0.1",
+    "inquirer-npm-name": "^3.0.0",
+    "lodash": "^4.17.15",
+    "parse-author": "^2.0.0",
+    "parse-github-url": "^1.0.2",
+    "validate-npm-package-name": "^3.0.0",
+    "yeoman-generator": "^4.4.0"
   }
 }
