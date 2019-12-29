@@ -1,6 +1,6 @@
 {
   "name": "generator-oniyi",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "An opinionated generator for node.js modules. Making use of ESLint, Prettier, Jest, Travis, Coveralls, Husky, and Lint-Staged",
   "homepage": "https://github.com/benkroeger/generator-oniyi",
   "author": "Benjamin Kroeger <benjamin.kroeger@gmail.com>",
