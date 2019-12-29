@@ -129,5 +129,9 @@ module.exports = class extends Generator {
       this.templatePath('prettier.config.js'),
       this.destinationPath(this.options.generateInto, 'prettier.config.js'),
     );
+    this.fs.copy(
+      this.templatePath('prettierignore'),
+      this.destinationPath(this.options.generateInto, '.prettierignore'),
+    );
   }
 };
