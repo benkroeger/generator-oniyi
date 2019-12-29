@@ -61,7 +61,10 @@ const remoteOriginUrl = generatorInstance => {
   const { options } = generatorInstance;
   return getRemoteOriginUrl(
     generatorInstance.destinationPath(options['project-root']),
-  ).then(originUrl => originUrl, () => undefined);
+  ).then(
+    originUrl => originUrl,
+    () => undefined,
+  );
 };
 
 const extracktRepositoryUrl = ({ repository }) => {
