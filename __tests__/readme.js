@@ -20,7 +20,7 @@ describe('node:readme', () => {
         authorUrl: 'http://oniyi.io',
         coveralls: true,
       })
-      .on('ready', gen => {
+      .on('ready', (gen) => {
         gen.fs.writeJSON(gen.destinationPath('package.json'), {
           license: 'Apache 2.0',
         });
@@ -57,7 +57,7 @@ describe('node:readme --content', () => {
         coveralls: true,
         content: 'My custom content',
       })
-      .on('ready', gen => {
+      .on('ready', (gen) => {
         gen.fs.writeJSON(gen.destinationPath('package.json'), {
           license: 'Apache 2.0',
         });
@@ -91,7 +91,7 @@ describe('node:readme --no-coveralls', () => {
         authorUrl: 'http://oniyi.io',
         coveralls: false,
       })
-      .on('ready', gen => {
+      .on('ready', (gen) => {
         gen.fs.writeJSON(gen.destinationPath('package.json'), {
           license: 'Apache 2.0',
         });
@@ -116,7 +116,7 @@ describe('node:readme --generate-into', () => {
         coveralls: true,
         generateInto: 'other/',
       })
-      .on('ready', gen => {
+      .on('ready', (gen) => {
         gen.fs.writeJSON(gen.destinationPath('other/package.json'), {
           license: 'Apache 2.0',
         });
@@ -157,7 +157,7 @@ describe('node:readme --content and --generate-into', () => {
         content: 'My custom content',
         generateInto: 'other/',
       })
-      .on('ready', gen => {
+      .on('ready', (gen) => {
         gen.fs.writeJSON(gen.destinationPath('other/package.json'), {
           license: 'Apache 2.0',
         });
@@ -192,7 +192,7 @@ describe('node:readme --no-coveralls and --generate-into', () => {
         coveralls: false,
         generateInto: 'other/',
       })
-      .on('ready', gen => {
+      .on('ready', (gen) => {
         gen.fs.writeJSON(gen.destinationPath('other/package.json'), {
           license: 'Apache 2.0',
         });

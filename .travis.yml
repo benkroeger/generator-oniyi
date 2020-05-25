@@ -1,6 +1,4 @@
 language: node_js
 node_js:
-  - v12
-  - v10
-  - v8
+  - v14
 after_script: cat ./coverage/lcov.info | coveralls

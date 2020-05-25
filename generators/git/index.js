@@ -9,7 +9,7 @@ const parseGithubUrl = require('parse-github-url');
 
 // internal
 
-const readPkg = generatorInstance =>
+const readPkg = (generatorInstance) =>
   generatorInstance.fs.readJSON(
     generatorInstance.destinationPath(
       generatorInstance.options.generateInto,

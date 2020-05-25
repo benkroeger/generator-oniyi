@@ -92,9 +92,7 @@ module.exports = class extends Generator {
       askForTravis,
     } = makePropmts(this);
 
-    return askForPackageDetails()
-      .then(askForGithubDetails)
-      .then(askForTravis);
+    return askForPackageDetails().then(askForGithubDetails).then(askForTravis);
   }
 
   writing() {

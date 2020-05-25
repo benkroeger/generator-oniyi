@@ -128,7 +128,7 @@ describe('node:app', () => {
       return helpers
         .run(require.resolve('../generators/app'))
         .withPrompts({ name: 'generator-oniyi' })
-        .on('ready', gen => {
+        .on('ready', (gen) => {
           gen.fs.writeJSON(gen.destinationPath('package.json'), pkg);
           gen.fs.write(gen.destinationPath('README.md'), 'foo');
         })
@@ -222,7 +222,7 @@ describe('node:app', () => {
         }));
 
     it('throws when an invalid name is supplied', () => {
-      ['@/invalid-name', 'invalid@name'].forEach(async name => {
+      ['@/invalid-name', 'invalid@name'].forEach(async (name) => {
         await expect(
           helpers.run(require.resolve('../generators/app')).withOptions({
             name,
@@ -323,7 +323,7 @@ describe('node:app', () => {
         .run(require.resolve('../generators/app'))
         .withOptions({ boilerplate: false })
         .withPrompts(answers)
-        .on('ready', generatorInstance => {
+        .on('ready', (generatorInstance) => {
           generatorInstance.fs.writeJSON(
             generatorInstance.destinationPath('package.json'),
             {
@@ -360,7 +360,7 @@ describe('node:app', () => {
         'jest',
         'lint-staged',
         'prettier',
-      ].forEach(devDependency =>
+      ].forEach((devDependency) =>
         assert.noJsonFileContent('package.json', {
           devDependencies: { [devDependency]: 1 },
         }),
@@ -368,7 +368,7 @@ describe('node:app', () => {
     });
 
     it("doesn't define scripts", () => {
-      ['pretest', 'test', 'lint', 'format'].forEach(scriptName =>
+      ['pretest', 'test', 'lint', 'format'].forEach((scriptName) =>
         assert.noJsonFileContent('package.json', {
           scripts: { [scriptName]: 1 },
         }),

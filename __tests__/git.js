@@ -72,7 +72,7 @@ describe('node:git', () => {
 
     return helpers
       .run(require.resolve('../generators/git'))
-      .on('ready', generatorInstance => {
+      .on('ready', (generatorInstance) => {
         generatorInstance.fs.writeJSON(
           generatorInstance.destinationPath('package.json'),
           pkg,
@@ -100,7 +100,7 @@ describe('node:git', () => {
 
     return helpers
       .run(require.resolve('../generators/git'))
-      .on('ready', generatorInstance => {
+      .on('ready', (generatorInstance) => {
         generatorInstance.fs.writeJSON(
           generatorInstance.destinationPath('package.json'),
           pkg,

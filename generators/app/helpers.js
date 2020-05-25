@@ -12,7 +12,7 @@ const getRemoteOriginUrl = require('git-remote-origin-url');
 
 // internal
 
-const getModuleNameParts = name => {
+const getModuleNameParts = (name) => {
   const moduleName = { name, localName: name };
 
   if (moduleName.name.startsWith('@')) {
@@ -27,7 +27,7 @@ const getModuleNameParts = name => {
   return moduleName;
 };
 
-const extractAuthorDetails = author => {
+const extractAuthorDetails = (author) => {
   if (_.isObject(author)) {
     const { name: authorName, email: authorEmail, url: authorUrl } = author;
 
@@ -48,7 +48,7 @@ const extractAuthorDetails = author => {
   return {};
 };
 
-const readPkg = generatorInstance =>
+const readPkg = (generatorInstance) =>
   generatorInstance.fs.readJSON(
     generatorInstance.destinationPath(
       generatorInstance.options['project-root'],
@@ -57,12 +57,12 @@ const readPkg = generatorInstance =>
     {},
   );
 
-const remoteOriginUrl = generatorInstance => {
+const remoteOriginUrl = (generatorInstance) => {
   const { options } = generatorInstance;
   return getRemoteOriginUrl(
     generatorInstance.destinationPath(options['project-root']),
   ).then(
-    originUrl => originUrl,
+    (originUrl) => originUrl,
     () => undefined,
   );
 };
@@ -77,12 +77,12 @@ const extracktRepositoryUrl = ({ repository }) => {
   return _.get(repository, 'url', null);
 };
 
-const makePropmts = generatorInstance => {
+const makePropmts = (generatorInstance) => {
   const { props, options } = generatorInstance;
 
   return {
     askForPackageDetails: () =>
-      new Promise(resolve => {
+      new Promise((resolve) => {
         if (props.name) {
           resolve({ name: props.name });
           return;
@@ -141,17 +141,17 @@ const makePropmts = generatorInstance => {
               name: 'keywords',
               message: 'Package keywords (comma to split)',
               when: !generatorInstance.pkg.keywords,
-              filter: words => words.split(/\s*,\s*/g),
+              filter: (words) => words.split(/\s*,\s*/g),
             },
           ];
 
-          return generatorInstance.prompt(prompts).then(answers => {
+          return generatorInstance.prompt(prompts).then((answers) => {
             Object.assign(props, answers);
           });
         }),
 
     askForGithubDetails: () =>
-      new Promise(resolve => {
+      new Promise((resolve) => {
         if (options.githubAccount) {
           resolve(options.githubAccount);
           return;
@@ -163,7 +163,7 @@ const makePropmts = generatorInstance => {
         if (props.authorEmail) {
           resolve(
             githubUsername(props.authorEmail).then(
-              username => username,
+              (username) => username,
               () => '',
             ),
           );
@@ -171,7 +171,7 @@ const makePropmts = generatorInstance => {
         }
 
         resolve('');
-      }).then(username => {
+      }).then((username) => {
         return generatorInstance
           .prompt([
             {
@@ -193,7 +193,7 @@ const makePropmts = generatorInstance => {
               githubAccount = options.githubAccount,
               repositoryName = options.repositoryName,
             }) =>
-              remoteOriginUrl(generatorInstance).then(originUrl => {
+              remoteOriginUrl(generatorInstance).then((originUrl) => {
                 Object.assign(props, {
                   githubAccount,
                   repositoryName,
